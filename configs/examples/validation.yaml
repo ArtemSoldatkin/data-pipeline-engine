@@ -1,0 +1,17 @@
+allow_empty: false
+min_rows: 1
+max_rows: 100000
+allow_extra_columns: true
+schema:
+  - name: id
+    type: int
+    required: true
+    nullable: false
+  - name: name
+    type: string
+    required: true
+    nullable: false
+  - name: score
+    type: float
+    required: false
+    nullable: true
