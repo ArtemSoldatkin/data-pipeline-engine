@@ -39,11 +39,7 @@ def load_pipeline_configs(
     cleaning_config_path: str | Path | None = None,
     skew_config_path: str | Path | None = None,
 ) -> PipelineConfigs:
-    if (
-        validation_config_path is None
-        and cleaning_config_path is None
-        and skew_config_path is None
-    ):
+    if validation_config_path is None and cleaning_config_path is None and skew_config_path is None:
         raise ConfigLoadError(
             "At least one config path must be provided: "
             "validation_config_path, cleaning_config_path, or skew_config_path"

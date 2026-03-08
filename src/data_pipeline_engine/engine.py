@@ -27,7 +27,9 @@ def _map_polars_type(dtype: pl.DataType) -> ColumnType:
     return ColumnType.STRING
 
 
-def _validate_row_count(df: pl.DataFrame, allow_empty: bool, min_rows: int | None, max_rows: int | None) -> list[str]:
+def _validate_row_count(
+    df: pl.DataFrame, allow_empty: bool, min_rows: int | None, max_rows: int | None
+) -> list[str]:
     errors: list[str] = []
     rows = df.height
 
@@ -41,7 +43,9 @@ def _validate_row_count(df: pl.DataFrame, allow_empty: bool, min_rows: int | Non
     return errors
 
 
-def _validate_schema(df: pl.DataFrame, schema: list[TableSchemaColumn], allow_extra_columns: bool) -> list[str]:
+def _validate_schema(
+    df: pl.DataFrame, schema: list[TableSchemaColumn], allow_extra_columns: bool
+) -> list[str]:
     errors: list[str] = []
     df_columns = set(df.columns)
     expected_columns = {col.name for col in schema}
@@ -56,7 +60,8 @@ def _validate_schema(df: pl.DataFrame, schema: list[TableSchemaColumn], allow_ex
         actual_type = _map_polars_type(series.dtype)
         if actual_type != expected_col.type:
             errors.append(
-                f"Column '{expected_col.name}' has type '{actual_type.value}', expected '{expected_col.type.value}'"
+                f"Column '{expected_col.name}' has type '{actual_type.value}', "
+                f"expected '{expected_col.type.value}'"
             )
 
         if not expected_col.nullable and series.null_count() > 0:
@@ -65,7 +70,9 @@ def _validate_schema(df: pl.DataFrame, schema: list[TableSchemaColumn], allow_ex
     if not allow_extra_columns:
         extra_columns = df_columns - expected_columns
         if extra_columns:
-            errors.append(f"Extra columns found but allow_extra_columns is false: {sorted(extra_columns)}")
+            errors.append(
+                f"Extra columns found but allow_extra_columns is false: {sorted(extra_columns)}"
+            )
 
     return errors
 
@@ -77,11 +84,7 @@ def run_pipeline(
     skew_config_path: str | Path | None = None,
 ) -> dict[str, Any]:
     """Run pipeline over a CSV with optional YAML configs (at least one required)."""
-    if (
-        validation_config_path is None
-        and cleaning_config_path is None
-        and skew_config_path is None
-    ):
+    if validation_config_path is None and cleaning_config_path is None and skew_config_path is None:
         raise PipelineExecutionError(
             "At least one config path must be provided: "
             "validation_config_path, cleaning_config_path, or skew_config_path"

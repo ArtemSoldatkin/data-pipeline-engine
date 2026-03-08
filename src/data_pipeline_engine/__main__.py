@@ -19,7 +19,8 @@ def main() -> None:
         and args.skew_config_path is None
     ):
         parser.error(
-            "At least one of --validation-config, --cleaning-config, or --skew-config must be provided."
+            "At least one of --validation-config, --cleaning-config, "
+            "or --skew-config must be provided."
         )
 
     result = run_pipeline(
