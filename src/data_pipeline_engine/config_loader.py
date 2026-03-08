@@ -6,9 +6,9 @@ from typing import Any
 import yaml
 
 from data_pipeline_engine.models.rules import (
-    CleaningRuleConfig,
     DataSkewRuleConfig,
     PipelineConfigs,
+    TransformationRuleConfig,
     ValidationRuleConfig,
 )
 
@@ -36,13 +36,17 @@ def _load_yaml_file(path: str | Path) -> dict[str, Any]:
 
 def load_pipeline_configs(
     validation_config_path: str | Path | None = None,
-    cleaning_config_path: str | Path | None = None,
+    transformation_config_path: str | Path | None = None,
     skew_config_path: str | Path | None = None,
 ) -> PipelineConfigs:
-    if validation_config_path is None and cleaning_config_path is None and skew_config_path is None:
+    if (
+        validation_config_path is None
+        and transformation_config_path is None
+        and skew_config_path is None
+    ):
         raise ConfigLoadError(
             "At least one config path must be provided: "
-            "validation_config_path, cleaning_config_path, or skew_config_path"
+            "validation_config_path, transformation_config_path, or skew_config_path"
         )
 
     validation = (
@@ -50,9 +54,9 @@ def load_pipeline_configs(
         if validation_config_path is not None
         else None
     )
-    cleaning = (
-        CleaningRuleConfig.model_validate(_load_yaml_file(cleaning_config_path))
-        if cleaning_config_path is not None
+    transformation = (
+        TransformationRuleConfig.model_validate(_load_yaml_file(transformation_config_path))
+        if transformation_config_path is not None
         else None
     )
     skew = (
@@ -61,4 +65,4 @@ def load_pipeline_configs(
         else None
     )
 
-    return PipelineConfigs(validation=validation, cleaning=cleaning, skew=skew)
+    return PipelineConfigs(validation=validation, transformation=transformation, skew=skew)

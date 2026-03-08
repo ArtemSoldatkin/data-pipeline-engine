@@ -103,13 +103,55 @@ class ValidationRuleConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_min_max_rows(self) -> ValidationRuleConfig:
-        if self.rows.min_rows is not None and self.rows.max_rows is not None and self.rows.min_rows > self.rows.max_rows:
+        if (
+            self.rows.min_rows is not None
+            and self.rows.max_rows is not None
+            and self.rows.min_rows > self.rows.max_rows
+        ):
             raise ValueError("min_rows cannot be greater than max_rows")
         return self
 
 
-class CleaningRuleConfig(BaseModel):
-    mode: Literal["placeholder"] = "placeholder"
+class TransformationCastType(str, Enum):
+    INT = "int"
+    FLOAT = "float"
+    STRING = "string"
+    BOOL = "bool"
+    DATE = "date"
+    DATETIME = "datetime"
+    TIMESTAMP = "timestamp"
+
+
+class TransformationColumnsConfig(BaseModel):
+    rename: dict[str, str] = Field(default_factory=dict)
+    drop: list[str] = Field(default_factory=list)
+    cast: dict[str, TransformationCastType] = Field(default_factory=dict)
+    normalize: dict[str, list[str]] = Field(default_factory=dict)
+
+
+class DeriveRuleConfig(BaseModel):
+    column: str
+    expression: str
+
+
+class RowFilterRuleConfig(BaseModel):
+    expression: str
+
+
+class RowDeduplicateRuleConfig(BaseModel):
+    keys: list[str] = Field(default_factory=list)
+    strategy: Literal["keep_first", "keep_last"] = "keep_first"
+
+
+class TransformationRowsConfig(BaseModel):
+    filter: list[RowFilterRuleConfig] = Field(default_factory=list)
+    deduplicate: RowDeduplicateRuleConfig | None = None
+
+
+class TransformationRuleConfig(BaseModel):
+    columns: TransformationColumnsConfig = Field(default_factory=TransformationColumnsConfig)
+    derive: list[DeriveRuleConfig] = Field(default_factory=list)
+    rows: TransformationRowsConfig = Field(default_factory=TransformationRowsConfig)
 
 
 class DataSkewRuleConfig(BaseModel):
@@ -118,11 +160,11 @@ class DataSkewRuleConfig(BaseModel):
 
 class PipelineConfigs(BaseModel):
     validation: ValidationRuleConfig | None = None
-    cleaning: CleaningRuleConfig | None = None
+    transformation: TransformationRuleConfig | None = None
     skew: DataSkewRuleConfig | None = None
 
     @model_validator(mode="after")
     def at_least_one_config(self) -> PipelineConfigs:
-        if self.validation is None and self.cleaning is None and self.skew is None:
+        if self.validation is None and self.transformation is None and self.skew is None:
             raise ValueError("At least one config must be provided")
         return self
