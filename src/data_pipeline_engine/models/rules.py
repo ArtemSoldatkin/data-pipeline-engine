@@ -127,6 +127,7 @@ class TransformationColumnsConfig(BaseModel):
     drop: list[str] = Field(default_factory=list)
     cast: dict[str, TransformationCastType] = Field(default_factory=dict)
     normalize: dict[str, list[str]] = Field(default_factory=dict)
+    derive: list[DeriveRuleConfig] = Field(default_factory=list)
 
 
 class DeriveRuleConfig(BaseModel):
@@ -145,12 +146,11 @@ class RowDeduplicateRuleConfig(BaseModel):
 
 class TransformationRowsConfig(BaseModel):
     filter: list[RowFilterRuleConfig] = Field(default_factory=list)
-    deduplicate: RowDeduplicateRuleConfig | None = None
+    deduplication: RowDeduplicateRuleConfig | None = None
 
 
 class TransformationRuleConfig(BaseModel):
     columns: TransformationColumnsConfig = Field(default_factory=TransformationColumnsConfig)
-    derive: list[DeriveRuleConfig] = Field(default_factory=list)
     rows: TransformationRowsConfig = Field(default_factory=TransformationRowsConfig)
 
 
