@@ -154,17 +154,68 @@ class TransformationRuleConfig(BaseModel):
     rows: TransformationRowsConfig = Field(default_factory=TransformationRowsConfig)
 
 
-class DataSkewRuleConfig(BaseModel):
-    mode: Literal["placeholder"] = "placeholder"
+class InspectionBaselineConfig(BaseModel):
+    source: Literal["previous_run", "rolling_window", "reference_dataset"] = "previous_run"
+
+
+class InspectionChangeThresholdConfig(BaseModel):
+    warn_change_pct: float | int | None = None
+    fail_change_pct: float | int | None = None
+
+
+class InspectionDriftThresholdConfig(BaseModel):
+    warn_above: float | int | None = None
+    fail_above: float | int | None = None
+
+
+class InspectionRowCountConfig(BaseModel):
+    change_pct: InspectionDriftThresholdConfig = Field(
+        default_factory=InspectionDriftThresholdConfig
+    )
+
+
+class InspectionColumnThresholdsConfig(BaseModel):
+    columns: dict[str, InspectionChangeThresholdConfig] = Field(default_factory=dict)
+
+
+class InspectionNumericDistributionConfig(BaseModel):
+    method: Literal["psi", "ks", "js_divergence"] = "psi"
+    warn_above: float | int | None = None
+    fail_above: float | int | None = None
+
+
+class InspectionNumericDistributionDriftConfig(BaseModel):
+    columns: dict[str, InspectionNumericDistributionConfig] = Field(default_factory=dict)
+
+
+class InspectionCategoricalDistributionDriftConfig(BaseModel):
+    columns: dict[str, InspectionDriftThresholdConfig] = Field(default_factory=dict)
+
+
+class InspectionRuleConfig(BaseModel):
+    baseline: InspectionBaselineConfig = Field(default_factory=InspectionBaselineConfig)
+    row_count: InspectionRowCountConfig = Field(default_factory=InspectionRowCountConfig)
+    null_fraction: InspectionColumnThresholdsConfig = Field(
+        default_factory=InspectionColumnThresholdsConfig
+    )
+    distinct_count: InspectionColumnThresholdsConfig = Field(
+        default_factory=InspectionColumnThresholdsConfig
+    )
+    numeric_distribution_drift: InspectionNumericDistributionDriftConfig = Field(
+        default_factory=InspectionNumericDistributionDriftConfig
+    )
+    categorical_distribution_drift: InspectionCategoricalDistributionDriftConfig = Field(
+        default_factory=InspectionCategoricalDistributionDriftConfig
+    )
 
 
 class PipelineConfigs(BaseModel):
     validation: ValidationRuleConfig | None = None
     transformation: TransformationRuleConfig | None = None
-    skew: DataSkewRuleConfig | None = None
+    inspection: InspectionRuleConfig | None = None
 
     @model_validator(mode="after")
     def at_least_one_config(self) -> PipelineConfigs:
-        if self.validation is None and self.transformation is None and self.skew is None:
+        if self.validation is None and self.transformation is None and self.inspection is None:
             raise ValueError("At least one config must be provided")
         return self
