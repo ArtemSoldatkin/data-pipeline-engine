@@ -47,7 +47,7 @@ def _validate_schema(df: pl.DataFrame, schema: list[TableSchemaColumn], allow_ex
     expected_columns = {col.name for col in schema}
 
     for expected_col in schema:
-        if expected_col.name not in df.columns:
+        if expected_col.name not in df_columns:
             if expected_col.required:
                 errors.append(f"Missing required column: {expected_col.name}")
             continue
@@ -77,6 +77,16 @@ def run_pipeline(
     skew_config_path: str | Path | None = None,
 ) -> dict[str, Any]:
     """Run pipeline over a CSV with optional YAML configs (at least one required)."""
+    if (
+        validation_config_path is None
+        and cleaning_config_path is None
+        and skew_config_path is None
+    ):
+        raise PipelineExecutionError(
+            "At least one config path must be provided: "
+            "validation_config_path, cleaning_config_path, or skew_config_path"
+        )
+
     configs = load_pipeline_configs(
         validation_config_path=validation_config_path,
         cleaning_config_path=cleaning_config_path,

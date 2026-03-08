@@ -25,8 +25,8 @@ def _load_yaml_file(path: str | Path) -> dict[str, Any]:
     try:
         with file_path.open("r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-    except yaml.YAMLError as exc:
-        raise ConfigLoadError(f"Invalid YAML in {file_path}: {exc}") from exc
+    except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
+        raise ConfigLoadError(f"Failed to load YAML config from {file_path}: {exc}") from exc
 
     if not isinstance(data, dict):
         raise ConfigLoadError(f"Config root must be a mapping/object: {file_path}")
@@ -39,6 +39,16 @@ def load_pipeline_configs(
     cleaning_config_path: str | Path | None = None,
     skew_config_path: str | Path | None = None,
 ) -> PipelineConfigs:
+    if (
+        validation_config_path is None
+        and cleaning_config_path is None
+        and skew_config_path is None
+    ):
+        raise ConfigLoadError(
+            "At least one config path must be provided: "
+            "validation_config_path, cleaning_config_path, or skew_config_path"
+        )
+
     validation = (
         ValidationRuleConfig.model_validate(_load_yaml_file(validation_config_path))
         if validation_config_path is not None

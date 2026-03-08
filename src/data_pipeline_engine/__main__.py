@@ -13,6 +13,14 @@ def main() -> None:
     parser.add_argument("--skew-config", dest="skew_config_path")
 
     args = parser.parse_args()
+    if (
+        args.validation_config_path is None
+        and args.cleaning_config_path is None
+        and args.skew_config_path is None
+    ):
+        parser.error(
+            "At least one of --validation-config, --cleaning-config, or --skew-config must be provided."
+        )
 
     result = run_pipeline(
         csv_path=args.csv_path,
