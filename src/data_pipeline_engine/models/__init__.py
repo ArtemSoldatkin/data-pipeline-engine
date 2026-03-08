@@ -5,13 +5,19 @@ from data_pipeline_engine.models.rules import (
     ColumnType,
     DataSkewRuleConfig,
     PipelineConfigs,
+    RowRuleConfig,
     TableSchemaColumn,
+    ValidationColumnsConfig,
+    ValidationRowsConfig,
     ValidationRuleConfig,
 )
 
 __all__ = [
     "ColumnType",
     "TableSchemaColumn",
+    "ValidationRowsConfig",
+    "ValidationColumnsConfig",
+    "RowRuleConfig",
     "ValidationRuleConfig",
     "CleaningRuleConfig",
     "DataSkewRuleConfig",
