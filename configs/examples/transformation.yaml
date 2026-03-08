@@ -1,0 +1,34 @@
+columns:
+  rename:
+    user_id: id
+    full_name: name
+
+  drop:
+    - temp_flag
+    - debug_note
+
+  cast:
+    score: float
+    created_at: timestamp
+
+  normalize:
+    name:
+      - trim
+    status:
+      - lowercase
+
+derive:
+  - column: score_bucket
+    expression: |
+      case
+        when score >= 80 then "high"
+        when score >= 50 then "medium"
+        else "low"
+
+rows:
+  filter:
+    - expression: "status != 'deleted'"
+
+  deduplicate:
+    keys: [id]
+    strategy: keep_first

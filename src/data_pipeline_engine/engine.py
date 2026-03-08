@@ -80,19 +80,23 @@ def _validate_schema(
 def run_pipeline(
     csv_path: str | Path,
     validation_config_path: str | Path | None = None,
-    cleaning_config_path: str | Path | None = None,
+    transformation_config_path: str | Path | None = None,
     skew_config_path: str | Path | None = None,
 ) -> dict[str, Any]:
     """Run pipeline over a CSV with optional YAML configs (at least one required)."""
-    if validation_config_path is None and cleaning_config_path is None and skew_config_path is None:
+    if (
+        validation_config_path is None
+        and transformation_config_path is None
+        and skew_config_path is None
+    ):
         raise PipelineExecutionError(
             "At least one config path must be provided: "
-            "validation_config_path, cleaning_config_path, or skew_config_path"
+            "validation_config_path, transformation_config_path, or skew_config_path"
         )
 
     configs = load_pipeline_configs(
         validation_config_path=validation_config_path,
-        cleaning_config_path=cleaning_config_path,
+        transformation_config_path=transformation_config_path,
         skew_config_path=skew_config_path,
     )
 
@@ -129,6 +133,6 @@ def run_pipeline(
         "rows": df.height,
         "columns": df.columns,
         "validation_applied": configs.validation is not None,
-        "cleaning_applied": configs.cleaning is not None,
+        "transformation_applied": configs.transformation is not None,
         "skew_applied": configs.skew is not None,
     }
