@@ -30,8 +30,12 @@ class ValidationRuleConfig(BaseModel):
     allow_extra_columns: bool = True
 
     @model_validator(mode="after")
-    def validate_min_max_rows(self) -> "ValidationRuleConfig":
-        if self.min_rows is not None and self.max_rows is not None and self.min_rows > self.max_rows:
+    def validate_min_max_rows(self) -> ValidationRuleConfig:
+        if (
+            self.min_rows is not None
+            and self.max_rows is not None
+            and self.min_rows > self.max_rows
+        ):
             raise ValueError("min_rows cannot be greater than max_rows")
         return self
 
@@ -50,7 +54,7 @@ class PipelineConfigs(BaseModel):
     skew: DataSkewRuleConfig | None = None
 
     @model_validator(mode="after")
-    def at_least_one_config(self) -> "PipelineConfigs":
+    def at_least_one_config(self) -> PipelineConfigs:
         if self.validation is None and self.cleaning is None and self.skew is None:
             raise ValueError("At least one config must be provided")
         return self

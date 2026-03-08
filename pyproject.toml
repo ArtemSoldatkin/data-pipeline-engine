@@ -14,8 +14,33 @@ dependencies = [
   "PyYAML>=6.0.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+  "black>=24.0.0",
+  "ruff>=0.6.0",
+  "pyright>=1.1.390",
+]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pyright]
+pythonVersion = "3.10"
+include = ["src"]
+typeCheckingMode = "basic"
+venvPath = "."
+venv = ".venv"
