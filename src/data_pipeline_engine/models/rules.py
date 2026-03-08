@@ -26,6 +26,7 @@ class ValidationRowsConfig(BaseModel):
     allow_empty: bool = True
     min_rows: int | None = Field(default=None, ge=0)
     max_rows: int | None = Field(default=None, ge=0)
+    primary_key: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_min_max_rows(self) -> ValidationRowsConfig:
@@ -69,6 +70,7 @@ class ValidationRuleConfig(BaseModel):
             "allow_empty": data.get("allow_empty", True),
             "min_rows": data.get("min_rows"),
             "max_rows": data.get("max_rows"),
+            "primary_key": data.get("primary_key", []),
         }
         columns = {
             "schema": data.get("schema", []),
@@ -92,6 +94,10 @@ class ValidationRuleConfig(BaseModel):
     @property
     def max_rows(self) -> int | None:
         return self.rows.max_rows
+
+    @property
+    def primary_key(self) -> list[str]:
+        return self.rows.primary_key
 
     @property
     def schema(self) -> list[TableSchemaColumn]:

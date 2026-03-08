@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import polars as pl
 
+from data_pipeline_engine.expressions import evaluate_derive
 from data_pipeline_engine.models.rules import DeriveRuleConfig
-from data_pipeline_engine.transformation.expression import evaluate_derive
 
 
 def derive_columns(data: pl.DataFrame, derive_rules: list[DeriveRuleConfig]) -> pl.DataFrame:

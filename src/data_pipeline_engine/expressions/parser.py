@@ -5,7 +5,6 @@ from typing import Any
 
 import polars as pl
 
-from data_pipeline_engine.transformation.errors import StageExecutionError
 
 def parse_literal(token: str) -> Any:
     normalized = token.strip()
@@ -49,11 +48,19 @@ def evaluate_derive(expression: str, row: dict[str, Any]) -> Any:
 def predicate_to_expr(expression: str) -> pl.Expr:
     match = re.match(r"^\s*([A-Za-z_][\w]*)\s*(==|!=|>=|<=|>|<)\s*(.+?)\s*$", expression)
     if not match:
-        raise StageExecutionError(f"Unsupported expression: {expression}")
+        raise ValueError(f"Unsupported expression: {expression}")
 
     lhs_col, operator, rhs_raw = match.groups()
     lhs = pl.col(lhs_col)
     parsed_rhs = parse_literal(rhs_raw)
+
+    if parsed_rhs is None:
+        if operator == "==":
+            return lhs.is_null()
+        if operator == "!=":
+            return lhs.is_not_null()
+        raise ValueError(f"Unsupported null comparison in expression: {expression}")
+
     if isinstance(parsed_rhs, tuple) and parsed_rhs[0] == "column_ref":
         rhs = pl.col(parsed_rhs[1])
     else:
@@ -70,3 +77,12 @@ def predicate_to_expr(expression: str) -> pl.Expr:
     if operator == ">=":
         return lhs >= rhs
     return lhs <= rhs
+
+
+def row_rule_to_expr(expression: str) -> pl.Expr:
+    parts = re.split(r"\s+implies\s+", expression, maxsplit=1, flags=re.IGNORECASE)
+    if len(parts) == 2:
+        antecedent = predicate_to_expr(parts[0]).fill_null(False)
+        consequent = predicate_to_expr(parts[1]).fill_null(False)
+        return (~antecedent) | consequent
+    return predicate_to_expr(expression)

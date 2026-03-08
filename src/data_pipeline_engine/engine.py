@@ -7,8 +7,8 @@ import polars as pl
 
 from data_pipeline_engine.config_loader import load_pipeline_configs
 from data_pipeline_engine.inspection import inspection
-from data_pipeline_engine.transformation import transformation
-from data_pipeline_engine.validation import validation
+from data_pipeline_engine.transformation import StageExecutionError, transformation
+from data_pipeline_engine.validation import ValidationExecutionError, validation
 
 
 class PipelineExecutionError(Exception):
@@ -43,9 +43,12 @@ def run_pipeline(
         raise FileNotFoundError(f"CSV file does not exist: {csv_file}")
 
     data = pl.read_csv(csv_file)
-    data = transformation(data, configs.transformation)
-    data = validation(data, configs.validation)
-    data = inspection(data, configs.inspection)
+    try:
+        data = transformation(data, configs.transformation)
+        data = validation(data, configs.validation)
+        data = inspection(data, configs.inspection)
+    except (StageExecutionError, ValidationExecutionError, ValueError) as exc:
+        raise PipelineExecutionError(str(exc)) from exc
 
     return {
         "status": "success",
