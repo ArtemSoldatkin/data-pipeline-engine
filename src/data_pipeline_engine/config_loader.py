@@ -6,7 +6,7 @@ from typing import Any
 import yaml
 
 from data_pipeline_engine.models.rules import (
-    DataSkewRuleConfig,
+    InspectionRuleConfig,
     PipelineConfigs,
     TransformationRuleConfig,
     ValidationRuleConfig,
@@ -37,16 +37,16 @@ def _load_yaml_file(path: str | Path) -> dict[str, Any]:
 def load_pipeline_configs(
     validation_config_path: str | Path | None = None,
     transformation_config_path: str | Path | None = None,
-    skew_config_path: str | Path | None = None,
+    inspection_config_path: str | Path | None = None,
 ) -> PipelineConfigs:
     if (
         validation_config_path is None
         and transformation_config_path is None
-        and skew_config_path is None
+        and inspection_config_path is None
     ):
         raise ConfigLoadError(
             "At least one config path must be provided: "
-            "validation_config_path, transformation_config_path, or skew_config_path"
+            "validation_config_path, transformation_config_path, or inspection_config_path"
         )
 
     validation = (
@@ -59,10 +59,12 @@ def load_pipeline_configs(
         if transformation_config_path is not None
         else None
     )
-    skew = (
-        DataSkewRuleConfig.model_validate(_load_yaml_file(skew_config_path))
-        if skew_config_path is not None
+    inspection = (
+        InspectionRuleConfig.model_validate(_load_yaml_file(inspection_config_path))
+        if inspection_config_path is not None
         else None
     )
 
-    return PipelineConfigs(validation=validation, transformation=transformation, skew=skew)
+    return PipelineConfigs(
+        validation=validation, transformation=transformation, inspection=inspection
+    )

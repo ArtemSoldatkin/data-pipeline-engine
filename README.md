@@ -3,7 +3,7 @@
 A minimal Python scaffold for a CSV data pipeline engine that loads YAML-driven rules for:
 - Validation
 - Transformation
-- Data skew checks (placeholder)
+- Inspection checks
 
 ## Quick start
 
@@ -20,7 +20,7 @@ result = run_pipeline(
     csv_path="/path/to/data.csv",
     validation_config_path="configs/examples/validation.yaml",
     transformation_config_path=None,
-    skew_config_path=None,
+    inspection_config_path=None,
 )
 print(result)
 ```

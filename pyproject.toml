@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "data-pipeline-engine"
 version = "0.1.0"
-description = "CSV data pipeline engine with YAML-driven validation, transformation, and skew checks"
+description = "CSV data pipeline engine with YAML-driven validation, transformation, and inspection checks"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
