@@ -35,28 +35,28 @@ def _load_yaml_file(path: str | Path) -> dict[str, Any]:
 
 
 def load_pipeline_configs(
-    validation_config_path: str | Path | None = None,
     transformation_config_path: str | Path | None = None,
+    validation_config_path: str | Path | None = None,
     inspection_config_path: str | Path | None = None,
 ) -> PipelineConfigs:
     if (
-        validation_config_path is None
-        and transformation_config_path is None
+        transformation_config_path is None
+        and validation_config_path is None
         and inspection_config_path is None
     ):
         raise ConfigLoadError(
             "At least one config path must be provided: "
-            "validation_config_path, transformation_config_path, or inspection_config_path"
+            "transformation_config_path, validation_config_path, or inspection_config_path"
         )
 
-    validation = (
-        ValidationRuleConfig.model_validate(_load_yaml_file(validation_config_path))
-        if validation_config_path is not None
-        else None
-    )
     transformation = (
         TransformationRuleConfig.model_validate(_load_yaml_file(transformation_config_path))
         if transformation_config_path is not None
+        else None
+    )
+    validation = (
+        ValidationRuleConfig.model_validate(_load_yaml_file(validation_config_path))
+        if validation_config_path is not None
         else None
     )
     inspection = (
