@@ -21,6 +21,7 @@ class ValidationRuleConfigTests(unittest.TestCase):
         self.assertFalse(validation.allow_empty)
         self.assertEqual(validation.min_rows, 1)
         self.assertEqual(validation.max_rows, 100000)
+        self.assertEqual(validation.primary_key, ["id"])
         self.assertEqual(len(validation.schema), 4)
         self.assertFalse(validation.allow_extra_columns)
         self.assertIn("status", validation.constraints)

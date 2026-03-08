@@ -11,7 +11,7 @@ from data_pipeline_engine.models.rules import (
 )
 from data_pipeline_engine.inspection import inspection
 from data_pipeline_engine.transformation import run_transformation
-from data_pipeline_engine.validation import validation
+from data_pipeline_engine.validation import ValidationExecutionError, validation
 
 
 class StageFunctionTests(unittest.TestCase):
@@ -46,7 +46,7 @@ class StageFunctionTests(unittest.TestCase):
         self.assertEqual(transformed["status"][0], "active")
 
     @unittest.skip("Polars runtime instability in this environment for validation execution")
-    def test_validation_placeholder_returns_data(self) -> None:
+    def test_validation_raises_on_invalid_data(self) -> None:
         data = pl.DataFrame({"id": [1]})
         config = ValidationRuleConfig.model_validate(
             {
@@ -61,8 +61,8 @@ class StageFunctionTests(unittest.TestCase):
             }
         )
 
-        validated = validation(data, config)
-        self.assertEqual(validated.height, 1)
+        with self.assertRaises(ValidationExecutionError):
+            validation(data, config)
 
     def test_inspection_placeholder_returns_data(self) -> None:
         data = pl.DataFrame({"id": [1, 2], "status": ["active", "inactive"]})
