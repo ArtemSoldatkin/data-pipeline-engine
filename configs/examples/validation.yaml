@@ -1,17 +1,56 @@
-allow_empty: false
-min_rows: 1
-max_rows: 100000
-allow_extra_columns: true
-schema:
-  - name: id
-    type: int
-    required: true
-    nullable: false
-  - name: name
-    type: string
-    required: true
-    nullable: false
-  - name: score
-    type: float
-    required: false
-    nullable: true
+rows:
+  allow_empty: false
+  min_rows: 1
+  max_rows: 100000
+
+  primary_key: [id]
+
+columns:
+  allow_extra: false
+
+  schema:
+    - name: id
+      type: int
+      required: true
+      nullable: false
+
+    - name: name
+      type: string
+      required: true
+      nullable: false
+
+    - name: status
+      type: string
+      required: true
+      nullable: false
+
+    - name: score
+      type: float
+      required: false
+      nullable: true
+
+constraints:
+  id:
+    unique: true
+
+  name:
+    pattern: "^[A-Za-z ]+$"
+    min_length: 1
+    max_length: 100
+
+  status:
+    allowed_values: ["active", "inactive", "pending"]
+
+  score:
+    min: 0.0
+    max: 100.0
+    allow_nan: false
+    allow_inf: false
+    max_null_fraction: 0.5
+
+row_rules:
+  - name: score_required_when_active
+    expression: 'status != "inactive" implies score != null'
+
+  - name: score_null_when_inactive
+    expression: 'status == "inactive" implies score == null'
