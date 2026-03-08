@@ -17,18 +17,18 @@ columns:
     status:
       - lowercase
 
-derive:
-  - column: score_bucket
-    expression: |
-      case
-        when score >= 80 then "high"
-        when score >= 50 then "medium"
-        else "low"
+  derive:
+    - column: score_bucket
+      expression: |
+        case
+          when score >= 80 then "high"
+          when score >= 50 then "medium"
+          else "low"
 
 rows:
   filter:
     - expression: "status != 'deleted'"
 
-  deduplicate:
+  deduplication:
     keys: [id]
     strategy: keep_first

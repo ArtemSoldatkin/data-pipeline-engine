@@ -26,12 +26,12 @@ class TransformationRuleConfigTests(unittest.TestCase):
         self.assertEqual(transformation.columns.cast["score"].value, "float")
         self.assertEqual(transformation.columns.cast["created_at"].value, "timestamp")
         self.assertEqual(transformation.columns.normalize["status"], ["lowercase"])
-        self.assertEqual(transformation.derive[0].column, "score_bucket")
+        self.assertEqual(transformation.columns.derive[0].column, "score_bucket")
         self.assertEqual(transformation.rows.filter[0].expression, "status != 'deleted'")
-        self.assertIsNotNone(transformation.rows.deduplicate)
-        assert transformation.rows.deduplicate is not None
-        self.assertEqual(transformation.rows.deduplicate.keys, ["id"])
-        self.assertEqual(transformation.rows.deduplicate.strategy, "keep_first")
+        self.assertIsNotNone(transformation.rows.deduplication)
+        assert transformation.rows.deduplication is not None
+        self.assertEqual(transformation.rows.deduplication.keys, ["id"])
+        self.assertEqual(transformation.rows.deduplication.strategy, "keep_first")
 
 
 if __name__ == "__main__":

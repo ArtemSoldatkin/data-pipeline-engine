@@ -37,9 +37,9 @@ class EnginePipelineOrderTests(unittest.TestCase):
                 return data
 
             with patch(
-                "data_pipeline_engine.engine.run_transformation", side_effect=transformation_stage
-            ), patch("data_pipeline_engine.engine.run_validation", side_effect=validation_stage), patch(
-                "data_pipeline_engine.engine.run_inspection", side_effect=inspection_stage
+                "data_pipeline_engine.engine.transformation", side_effect=transformation_stage
+            ), patch("data_pipeline_engine.engine.validation", side_effect=validation_stage), patch(
+                "data_pipeline_engine.engine.inspection", side_effect=inspection_stage
             ):
                 result = run_pipeline(
                     csv_path=csv_path,
