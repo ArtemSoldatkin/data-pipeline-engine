@@ -25,13 +25,18 @@ def inspection(
     data: pl.DataFrame,
     config: InspectionRuleConfig | None,
     source_csv: str | Path | None = None,
+    baseline_csv: str | Path | None = None,
 ) -> pl.DataFrame:
     """Run inspection calculations; baseline comparison is currently a placeholder."""
     if config is None:
         return data
 
     metrics: dict[str, object] = {
-        "baseline": evaluate_baseline_placeholder(config.baseline, source_csv=source_csv),
+        "baseline": evaluate_baseline_placeholder(
+            config.baseline,
+            source_csv=source_csv,
+            baseline_csv=baseline_csv,
+        ),
         "row_count": evaluate_row_count(data, config.row_count),
         "null_fraction": evaluate_null_fraction(data, config.null_fraction),
         "distinct_count": evaluate_distinct_count(data, config.distinct_count),

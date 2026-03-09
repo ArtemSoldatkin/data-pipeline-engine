@@ -32,9 +32,10 @@ class EnginePipelineOrderTests(unittest.TestCase):
                 calls.append("validation")
                 return data
 
-            def inspection_stage(data, config, source_csv=None):
+            def inspection_stage(data, config, source_csv=None, baseline_csv=None):
                 self.assertIsNotNone(config)
                 self.assertIsNotNone(source_csv)
+                self.assertIsNone(baseline_csv)
                 calls.append("inspection")
                 return data
 
@@ -73,7 +74,10 @@ class EnginePipelineOrderTests(unittest.TestCase):
 
             with patch("data_pipeline_engine.engine.transformation", side_effect=lambda d, c: d), patch(
                 "data_pipeline_engine.engine.validation", side_effect=lambda d, c: d
-            ), patch("data_pipeline_engine.engine.inspection", side_effect=lambda d, c, source_csv=None: d):
+            ), patch(
+                "data_pipeline_engine.engine.inspection",
+                side_effect=lambda d, c, source_csv=None, baseline_csv=None: d,
+            ):
                 result1 = run_pipeline(
                     csv_path=csv_path,
                     inspection_config_path=inspection_path,
@@ -89,6 +93,31 @@ class EnginePipelineOrderTests(unittest.TestCase):
             self.assertEqual(len(cached_files), 1)
             self.assertEqual(Path(result2["cached_output_path"]), cached_files[0])
             self.assertNotEqual(result1["cached_output_path"], result2["cached_output_path"])
+
+    def test_passes_baseline_file_to_inspection_for_reference_dataset(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            csv_path = temp_path / "input.csv"
+            csv_path.write_text("id\n1\n", encoding="utf-8")
+            baseline_csv_path = temp_path / "baseline.csv"
+            baseline_csv_path.write_text("id\n10\n", encoding="utf-8")
+            inspection_path = temp_path / "inspection.yaml"
+            inspection_path.write_text("baseline:\n  source: reference_dataset\n", encoding="utf-8")
+
+            def inspection_stage(data, config, source_csv=None, baseline_csv=None):
+                self.assertIsNotNone(config)
+                self.assertEqual(Path(source_csv), csv_path)
+                self.assertEqual(Path(baseline_csv), baseline_csv_path)
+                return data
+
+            with patch("data_pipeline_engine.engine.transformation", side_effect=lambda d, c: d), patch(
+                "data_pipeline_engine.engine.validation", side_effect=lambda d, c: d
+            ), patch("data_pipeline_engine.engine.inspection", side_effect=inspection_stage):
+                run_pipeline(
+                    csv_path=csv_path,
+                    inspection_config_path=inspection_path,
+                    baseline_file_path=baseline_csv_path,
+                )
 
 
 if __name__ == "__main__":
