@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import pandas as pd
 import pytest
-import polars as pl
 
 from data_pipeline_engine.inspection import inspection
 from data_pipeline_engine.models.rules import (
@@ -13,9 +13,8 @@ from data_pipeline_engine.transformation import run_transformation
 from data_pipeline_engine.validation import ValidationExecutionError, validation
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for transformation execution")
 def test_run_transformation_applies_operations() -> None:
-    data = pl.DataFrame(
+    data = pd.DataFrame(
         {
             "user_id": [1, 1, 2],
             "full_name": [" Alice ", " Alice ", "Bob "],
@@ -38,15 +37,14 @@ def test_run_transformation_applies_operations() -> None:
     )
 
     transformed = run_transformation(data, config)
-    assert transformed.columns == ["id", "name", "status", "score"]
-    assert transformed.height == 3
-    assert transformed["name"][0] == "Alice"
-    assert transformed["status"][0] == "active"
+    assert transformed.columns.tolist() == ["id", "name", "status", "score"]
+    assert len(transformed) == 3
+    assert transformed["name"].iloc[0] == "Alice"
+    assert transformed["status"].iloc[0] == "active"
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for validation execution")
 def test_validation_raises_on_invalid_data() -> None:
-    data = pl.DataFrame({"id": [1]})
+    data = pd.DataFrame({"id": [1]})
     config = ValidationRuleConfig.model_validate(
         {
             "rows": {"allow_empty": False},
@@ -64,12 +62,11 @@ def test_validation_raises_on_invalid_data() -> None:
         validation(data, config)
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection execution")
 def test_inspection_returns_data() -> None:
-    data = pl.DataFrame({"id": [1, 2], "status": ["active", "inactive"]})
+    data = pd.DataFrame({"id": [1, 2], "status": ["active", "inactive"]})
     config = InspectionRuleConfig.model_validate(
         {"categorical_distribution_drift": {"columns": {"status": {"warn_above": 0.1}}}}
     )
 
     inspected = inspection(data, config)
-    assert inspected.height == 2
+    assert len(inspected) == 2

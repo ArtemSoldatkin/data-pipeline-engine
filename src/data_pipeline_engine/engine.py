@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.cache_manager import write_to_cache
 from data_pipeline_engine.config_loader import load_pipeline_configs
@@ -45,7 +45,7 @@ def run_pipeline(
     if not csv_file.exists():
         raise FileNotFoundError(f"CSV file does not exist: {csv_file}")
 
-    data = pl.read_csv(csv_file)
+    data = pd.read_csv(csv_file)
     inspection_metrics: dict[str, Any] = {}
     try:
         data = transformation(data, configs.transformation)
@@ -68,8 +68,8 @@ def run_pipeline(
 
     return {
         "status": "success",
-        "rows": data.height,
-        "columns": data.columns,
+        "rows": len(data),
+        "columns": list(data.columns),
         "validation_applied": configs.validation is not None,
         "transformation_applied": configs.transformation is not None,
         "inspection_applied": configs.inspection is not None,

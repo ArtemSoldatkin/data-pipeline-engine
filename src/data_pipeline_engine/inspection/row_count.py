@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import (
     mean_or_none,
@@ -13,12 +13,12 @@ from data_pipeline_engine.models.rules import InspectionRowCountConfig
 
 
 def evaluate_row_count(
-    data: pl.DataFrame,
+    data: pd.DataFrame,
     config: InspectionRowCountConfig,
-    baseline_frames: list[pl.DataFrame] | None = None,
+    baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, Any]:
-    current_rows = data.height
-    baseline_values = [float(frame.height) for frame in (baseline_frames or [])]
+    current_rows = len(data)
+    baseline_values = [float(len(frame)) for frame in (baseline_frames or [])]
     baseline_rows = mean_or_none(baseline_values)
     change_pct = relative_change_pct(float(current_rows), baseline_rows)
 

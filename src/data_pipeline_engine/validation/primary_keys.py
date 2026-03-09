@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import polars as pl
+import pandas as pd
 
 
-def check_primary_keys(data: pl.DataFrame, primary_key: list[str]) -> list[str]:
+def check_primary_keys(data: pd.DataFrame, primary_key: list[str]) -> list[str]:
     if not primary_key:
         return []
 
@@ -13,12 +13,11 @@ def check_primary_keys(data: pl.DataFrame, primary_key: list[str]) -> list[str]:
         errors.append(f"Primary key columns are missing: {missing}")
         return errors
 
-    null_flags = data.select([pl.col(col).is_null().any().alias(col) for col in primary_key]).row(0)
-    null_columns = [col for col, has_null in zip(primary_key, null_flags) if has_null]
+    null_columns = [col for col in primary_key if data[col].isna().any()]
     if null_columns:
         errors.append(f"Primary key contains nulls in columns: {null_columns}")
 
-    if data.height != data.unique(subset=primary_key).height:
+    if data.duplicated(subset=primary_key).any():
         errors.append(f"Primary key is not unique: {primary_key}")
 
     return errors

@@ -3,17 +3,17 @@ from __future__ import annotations
 import math
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import status_from_thresholds
 from data_pipeline_engine.models.rules import InspectionNumericDistributionDriftConfig
 
 
-def _to_numeric_values(data: pl.DataFrame, column: str) -> list[float]:
+def _to_numeric_values(data: pd.DataFrame, column: str) -> list[float]:
     if column not in data.columns:
         return []
-    series = data[column].cast(pl.Float64, strict=False).drop_nulls()
-    return [float(value) for value in series.to_list()]
+    series = pd.to_numeric(data[column], errors="coerce").dropna()
+    return [float(value) for value in series.tolist()]
 
 
 def _uniform_edges(values: list[float], bins: int = 10) -> list[float]:
@@ -107,9 +107,9 @@ def _distribution_distance(method: str, current: list[float], baseline: list[flo
 
 
 def evaluate_numeric_distribution_drift(
-    data: pl.DataFrame,
+    data: pd.DataFrame,
     config: InspectionNumericDistributionDriftConfig,
-    baseline_frames: list[pl.DataFrame] | None = None,
+    baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
 
@@ -125,16 +125,13 @@ def evaluate_numeric_distribution_drift(
             continue
 
         current_values = _to_numeric_values(data, column)
+        current_series = pd.Series(current_values, dtype="float64")
         current_stats = {
             "count": len(current_values),
-            "mean": sum(current_values) / len(current_values) if current_values else None,
-            "std": (
-                float(pl.Series(current_values).std())
-                if len(current_values) > 1
-                else None
-            ),
-            "min": min(current_values) if current_values else None,
-            "max": max(current_values) if current_values else None,
+            "mean": float(current_series.mean()) if not current_series.empty else None,
+            "std": float(current_series.std()) if len(current_values) > 1 else None,
+            "min": float(current_series.min()) if not current_series.empty else None,
+            "max": float(current_series.max()) if not current_series.empty else None,
         }
         baseline_values: list[float] = []
         for frame in baseline_frames or []:

@@ -2,18 +2,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import polars as pl
-import pytest
+import pandas as pd
 
 from data_pipeline_engine.cache_manager import read_from_cache, write_to_cache
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for cache IO execution")
 def test_read_from_cache_by_strategy(tmp_path: Path) -> None:
     csv_path = tmp_path / "input.csv"
     csv_path.write_text("id\n1\n", encoding="utf-8")
 
-    data = pl.DataFrame({"id": [1]})
+    data = pd.DataFrame({"id": [1]})
     write_to_cache(data, csv_path, cache_size=10)
     write_to_cache(data, csv_path, cache_size=10)
     write_to_cache(data, csv_path, cache_size=10)

@@ -1,29 +1,29 @@
 from __future__ import annotations
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.transformation.errors import StageExecutionError
 
 
-def normalize_columns(data: pl.DataFrame, ops: dict[str, list[str]]) -> pl.DataFrame:
+def normalize_columns(data: pd.DataFrame, ops: dict[str, list[str]]) -> pd.DataFrame:
     if not ops:
         return data
 
-    expressions: list[pl.Expr] = []
+    result = data.copy()
     for column, operations in ops.items():
-        if column not in data.columns:
+        if column not in result.columns:
             continue
 
-        expr = pl.col(column).cast(pl.String)
+        series = result[column].astype("string")
         for operation in operations:
             if operation == "trim":
-                expr = expr.str.strip_chars()
+                series = series.str.strip()
             elif operation == "lowercase":
-                expr = expr.str.to_lowercase()
+                series = series.str.lower()
             elif operation == "uppercase":
-                expr = expr.str.to_uppercase()
+                series = series.str.upper()
             else:
                 raise StageExecutionError(f"Unsupported normalization operation: {operation}")
-        expressions.append(expr.alias(column))
+        result[column] = series
 
-    return data.with_columns(expressions) if expressions else data
+    return result

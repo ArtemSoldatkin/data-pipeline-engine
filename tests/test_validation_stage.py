@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+import pandas as pd
 import pytest
-import polars as pl
 
 from data_pipeline_engine.models.rules import ValidationRuleConfig
 from data_pipeline_engine.validation import ValidationExecutionError, validation
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for full validation success path")
 def test_validation_succeeds_for_valid_dataset() -> None:
-    data = pl.DataFrame(
+    data = pd.DataFrame(
         {
             "id": [1, 2, 3],
             "name": ["Alice", "Bob", "Carol"],
@@ -60,11 +59,11 @@ def test_validation_succeeds_for_valid_dataset() -> None:
     )
 
     output = validation(data, config)
-    assert output.height == 3
+    assert len(output) == 3
 
 
 def test_validation_fails_on_primary_key_duplicate() -> None:
-    data = pl.DataFrame({"id": [1, 1], "name": ["Alice", "Bob"]})
+    data = pd.DataFrame({"id": [1, 1], "name": ["Alice", "Bob"]})
     config = ValidationRuleConfig.model_validate(
         {
             "rows": {"primary_key": ["id"]},
@@ -76,9 +75,8 @@ def test_validation_fails_on_primary_key_duplicate() -> None:
         validation(data, config)
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for empty DataFrame path")
 def test_validation_fails_on_allow_empty() -> None:
-    data = pl.DataFrame(schema={"id": pl.Int64})
+    data = pd.DataFrame({"id": pd.Series(dtype="Int64")})
     config = ValidationRuleConfig.model_validate({"rows": {"allow_empty": False}})
 
     with pytest.raises(ValidationExecutionError):
@@ -86,7 +84,7 @@ def test_validation_fails_on_allow_empty() -> None:
 
 
 def test_validation_fails_on_row_rule() -> None:
-    data = pl.DataFrame({"status": ["inactive"], "score": [10.0]})
+    data = pd.DataFrame({"status": ["inactive"], "score": [10.0]})
     config = ValidationRuleConfig.model_validate(
         {
             "row_rules": [
