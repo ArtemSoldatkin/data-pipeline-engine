@@ -23,11 +23,17 @@ class CacheManagerTests(unittest.TestCase):
 
             previous = read_from_cache(csv_path, strategy="previous_run")
             rolling = read_from_cache(csv_path, strategy="rolling_window", rolling_window_size=2)
-            reference = read_from_cache(csv_path, strategy="reference_dataset")
+            reference_dataset_path = Path(temp_dir) / "reference.csv"
+            reference_dataset_path.write_text("id\n9\n", encoding="utf-8")
+            reference = read_from_cache(
+                csv_path,
+                strategy="reference_dataset",
+                reference_csv=reference_dataset_path,
+            )
 
             self.assertEqual(len(previous), 1)
             self.assertEqual(len(rolling), 2)
-            self.assertEqual(len(reference), 0)
+            self.assertEqual(len(reference), 1)
 
 
 if __name__ == "__main__":

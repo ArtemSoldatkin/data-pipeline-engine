@@ -32,12 +32,15 @@ class EnginePipelineOrderTests(unittest.TestCase):
                 calls.append("validation")
                 return data
 
-            def inspection_stage(data, config, source_csv=None, baseline_csv=None):
+            def inspection_stage(
+                data, config, source_csv=None, baseline_csv=None, return_metrics=False
+            ):
                 self.assertIsNotNone(config)
                 self.assertIsNotNone(source_csv)
                 self.assertIsNone(baseline_csv)
+                self.assertTrue(return_metrics)
                 calls.append("inspection")
-                return data
+                return data, {"overall_status": "pass"}
 
             with patch(
                 "data_pipeline_engine.engine.transformation", side_effect=transformation_stage
@@ -56,6 +59,7 @@ class EnginePipelineOrderTests(unittest.TestCase):
             self.assertTrue(result["transformation_applied"])
             self.assertTrue(result["validation_applied"])
             self.assertTrue(result["inspection_applied"])
+            self.assertEqual(result["inspection_metrics"]["overall_status"], "pass")
             self.assertTrue(cache_dir.exists())
             self.assertTrue(Path(result["cached_output_path"]).exists())
             self.assertRegex(
@@ -76,7 +80,10 @@ class EnginePipelineOrderTests(unittest.TestCase):
                 "data_pipeline_engine.engine.validation", side_effect=lambda d, c: d
             ), patch(
                 "data_pipeline_engine.engine.inspection",
-                side_effect=lambda d, c, source_csv=None, baseline_csv=None: d,
+                side_effect=lambda d, c, source_csv=None, baseline_csv=None, return_metrics=False: (
+                    d,
+                    {"overall_status": "pass"},
+                ),
             ):
                 result1 = run_pipeline(
                     csv_path=csv_path,
@@ -93,6 +100,7 @@ class EnginePipelineOrderTests(unittest.TestCase):
             self.assertEqual(len(cached_files), 1)
             self.assertEqual(Path(result2["cached_output_path"]), cached_files[0])
             self.assertNotEqual(result1["cached_output_path"], result2["cached_output_path"])
+            self.assertEqual(result2["inspection_metrics"]["overall_status"], "pass")
 
     def test_passes_baseline_file_to_inspection_for_reference_dataset(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -104,11 +112,14 @@ class EnginePipelineOrderTests(unittest.TestCase):
             inspection_path = temp_path / "inspection.yaml"
             inspection_path.write_text("baseline:\n  source: reference_dataset\n", encoding="utf-8")
 
-            def inspection_stage(data, config, source_csv=None, baseline_csv=None):
+            def inspection_stage(
+                data, config, source_csv=None, baseline_csv=None, return_metrics=False
+            ):
                 self.assertIsNotNone(config)
                 self.assertEqual(Path(source_csv), csv_path)
                 self.assertEqual(Path(baseline_csv), baseline_csv_path)
-                return data
+                self.assertTrue(return_metrics)
+                return data, {"overall_status": "pass"}
 
             with patch("data_pipeline_engine.engine.transformation", side_effect=lambda d, c: d), patch(
                 "data_pipeline_engine.engine.validation", side_effect=lambda d, c: d

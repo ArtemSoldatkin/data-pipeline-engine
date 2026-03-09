@@ -46,15 +46,21 @@ def run_pipeline(
         raise FileNotFoundError(f"CSV file does not exist: {csv_file}")
 
     data = pl.read_csv(csv_file)
+    inspection_metrics: dict[str, Any] = {}
     try:
         data = transformation(data, configs.transformation)
         data = validation(data, configs.validation)
-        data = inspection(
+        inspection_result = inspection(
             data,
             configs.inspection,
             source_csv=csv_file,
             baseline_csv=baseline_file_path,
+            return_metrics=True,
         )
+        if isinstance(inspection_result, tuple):
+            data, inspection_metrics = inspection_result
+        else:
+            data = inspection_result
     except (StageExecutionError, ValidationExecutionError, ValueError) as exc:
         raise PipelineExecutionError(str(exc)) from exc
 
@@ -67,5 +73,6 @@ def run_pipeline(
         "validation_applied": configs.validation is not None,
         "transformation_applied": configs.transformation is not None,
         "inspection_applied": configs.inspection is not None,
+        "inspection_metrics": inspection_metrics,
         "cached_output_path": str(cached_output),
     }
