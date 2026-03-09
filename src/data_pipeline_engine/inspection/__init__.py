@@ -1,6 +1,9 @@
 """Inspection stage package."""
 
-from data_pipeline_engine.inspection.baseline import evaluate_baseline_placeholder
+from data_pipeline_engine.inspection.baseline import (
+    evaluate_baseline,
+    load_baseline_frames,
+)
 from data_pipeline_engine.inspection.categorical_distribution_drift import (
     evaluate_categorical_distribution_drift,
 )
@@ -17,7 +20,8 @@ run_inspection = inspection
 __all__ = [
     "inspection",
     "run_inspection",
-    "evaluate_baseline_placeholder",
+    "evaluate_baseline",
+    "load_baseline_frames",
     "evaluate_row_count",
     "evaluate_null_fraction",
     "evaluate_distinct_count",

@@ -5,7 +5,7 @@ import unittest
 import polars as pl
 
 from data_pipeline_engine.inspection import (
-    evaluate_baseline_placeholder,
+    evaluate_baseline,
     evaluate_categorical_distribution_drift,
     evaluate_distinct_count,
     evaluate_null_fraction,
@@ -42,7 +42,7 @@ class InspectionStageTests(unittest.TestCase):
             }
         )
 
-        baseline = evaluate_baseline_placeholder(config.baseline)
+        baseline = evaluate_baseline(config.baseline)
         row_count = evaluate_row_count(data, config.row_count)
         null_fraction = evaluate_null_fraction(data, config.null_fraction)
         distinct_count = evaluate_distinct_count(data, config.distinct_count)
@@ -51,13 +51,13 @@ class InspectionStageTests(unittest.TestCase):
             data, config.categorical_distribution_drift
         )
 
-        self.assertEqual(baseline["status"], "placeholder")
+        self.assertEqual(baseline["status"], "missing")
         self.assertEqual(row_count["current_rows"], 4)
         self.assertEqual(null_fraction["score"]["current_null_fraction"], 0.25)
         self.assertEqual(distinct_count["id"]["current_distinct_count"], 3)
         self.assertEqual(numeric["score"]["method"], "psi")
         self.assertEqual(numeric["score"]["current_stats"]["count"], 3)
-        self.assertEqual(categorical["status"]["comparison_status"], "placeholder")
+        self.assertEqual(categorical["status"]["comparison_status"], "no_baseline")
         self.assertGreater(len(categorical["status"]["current_distribution"]), 0)
 
     @unittest.skip("Polars runtime instability in this environment for inspection execution")

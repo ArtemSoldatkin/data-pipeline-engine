@@ -53,18 +53,26 @@ def read_from_cache(
     source_csv: str | Path,
     strategy: Literal["previous_run", "rolling_window", "reference_dataset"],
     rolling_window_size: int = 3,
+    reference_csv: str | Path | None = None,
 ) -> list[pl.DataFrame]:
     source_path = Path(source_csv)
+    if strategy == "reference_dataset":
+        if reference_csv is None:
+            raise ValueError(
+                "baseline_file_path must be provided when baseline source is reference_dataset"
+            )
+        reference_path = Path(reference_csv)
+        if not reference_path.exists():
+            raise FileNotFoundError(f"Baseline CSV file does not exist: {reference_path}")
+        return [pl.read_csv(reference_path)]
+
     cached_files = _cache_files(source_path)
     if not cached_files:
         return []
 
     if strategy == "previous_run":
         selected = cached_files[-1:]
-    elif strategy == "rolling_window":
-        selected = cached_files[-max(rolling_window_size, 1) :]
     else:
-        # reference_dataset strategy is left as placeholder for now.
-        selected = []
+        selected = cached_files[-max(rolling_window_size, 1) :]
 
     return [pl.read_csv(path) for path in selected]
