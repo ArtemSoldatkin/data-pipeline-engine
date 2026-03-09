@@ -1,6 +1,6 @@
 rows:
   allow_empty: false
-  min_rows: 1
+  min_rows: 3
   max_rows: 100000
 
   primary_key: [id]
@@ -29,6 +29,16 @@ columns:
       required: false
       nullable: true
 
+    - name: created_at
+      type: datetime
+      required: true
+      nullable: false
+
+    - name: score_bucket
+      type: string
+      required: true
+      nullable: false
+
 constraints:
   id:
     unique: true
@@ -46,10 +56,13 @@ constraints:
     max: 100.0
     allow_nan: false
     allow_inf: false
-    max_null_fraction: 0.5
+    max_null_fraction: 0.4
+
+  score_bucket:
+    allowed_values: ["high", "medium", "low"]
 
 row_rules:
-  - name: score_required_when_active
+  - name: score_required_when_active_or_pending
     expression: 'status != "inactive" implies score != null'
 
   - name: score_null_when_inactive

@@ -3,7 +3,7 @@ baseline:
 
 row_count:
   change_pct:
-    warn_above: 20
+    warn_above: 25
     fail_above: 50
 
 null_fraction:
@@ -11,21 +11,21 @@ null_fraction:
     score:
       warn_change_pct: 10
       fail_change_pct: 30
-    name:
-      warn_change_pct: 5
 
 distinct_count:
   columns:
     id:
-      warn_change_pct: 5
-      fail_change_pct: 10
+      warn_change_pct: 10
+      fail_change_pct: 25
     status:
+      warn_change_pct: 20
+    score_bucket:
       warn_change_pct: 20
 
 numeric_distribution_drift:
   columns:
     score:
-      method: psi # psi | ks | js_divergence
+      method: ks # psi | ks | js_divergence
       warn_above: 0.2
       fail_above: 0.4
 
@@ -33,4 +33,7 @@ categorical_distribution_drift:
   columns:
     status:
       warn_above: 0.15 # distribution distance
+      fail_above: 0.3
+    score_bucket:
+      warn_above: 0.15
       fail_above: 0.3
