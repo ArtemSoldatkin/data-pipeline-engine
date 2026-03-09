@@ -11,6 +11,7 @@ def main() -> None:
     parser.add_argument("--validation-config", dest="validation_config_path")
     parser.add_argument("--transformation-config", dest="transformation_config_path")
     parser.add_argument("--inspection-config", dest="inspection_config_path")
+    parser.add_argument("--cache-size", dest="cache_size", type=int, default=1)
 
     args = parser.parse_args()
     if (
@@ -28,6 +29,7 @@ def main() -> None:
         validation_config_path=args.validation_config_path,
         transformation_config_path=args.transformation_config_path,
         inspection_config_path=args.inspection_config_path,
+        cache_size=args.cache_size,
     )
     print(result)
 

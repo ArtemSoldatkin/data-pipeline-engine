@@ -18,6 +18,7 @@ class EnginePipelineOrderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             csv_path = Path(temp_dir) / "input.csv"
             csv_path.write_text("id,name,status,score\n1,Alice,active,91.5\n", encoding="utf-8")
+            cache_dir = Path(temp_dir) / ".data_pipeline_cache"
 
             calls: list[str] = []
 
@@ -48,11 +49,45 @@ class EnginePipelineOrderTests(unittest.TestCase):
                     inspection_config_path=inspection_path,
                 )
 
-        self.assertEqual(calls, ["transformation", "validation", "inspection"])
-        self.assertEqual(result["status"], "success")
-        self.assertTrue(result["transformation_applied"])
-        self.assertTrue(result["validation_applied"])
-        self.assertTrue(result["inspection_applied"])
+            self.assertEqual(calls, ["transformation", "validation", "inspection"])
+            self.assertEqual(result["status"], "success")
+            self.assertTrue(result["transformation_applied"])
+            self.assertTrue(result["validation_applied"])
+            self.assertTrue(result["inspection_applied"])
+            self.assertTrue(cache_dir.exists())
+            self.assertTrue(Path(result["cached_output_path"]).exists())
+            self.assertRegex(
+                Path(result["cached_output_path"]).name,
+                r"^\d{8}T\d{9,}Z_input\.csv$",
+            )
+
+    def test_prunes_cache_to_cache_size(self) -> None:
+        project_root = Path(__file__).resolve().parents[1]
+        inspection_path = project_root / "configs" / "examples" / "inspection.yaml"
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            csv_path = Path(temp_dir) / "input.csv"
+            csv_path.write_text("id,name,status,score\n1,Alice,active,91.5\n", encoding="utf-8")
+            cache_dir = Path(temp_dir) / ".data_pipeline_cache"
+
+            with patch("data_pipeline_engine.engine.transformation", side_effect=lambda d, c: d), patch(
+                "data_pipeline_engine.engine.validation", side_effect=lambda d, c: d
+            ), patch("data_pipeline_engine.engine.inspection", side_effect=lambda d, c: d):
+                result1 = run_pipeline(
+                    csv_path=csv_path,
+                    inspection_config_path=inspection_path,
+                    cache_size=1,
+                )
+                result2 = run_pipeline(
+                    csv_path=csv_path,
+                    inspection_config_path=inspection_path,
+                    cache_size=1,
+                )
+
+            cached_files = [path for path in cache_dir.iterdir() if path.is_file()]
+            self.assertEqual(len(cached_files), 1)
+            self.assertEqual(Path(result2["cached_output_path"]), cached_files[0])
+            self.assertNotEqual(result1["cached_output_path"], result2["cached_output_path"])
 
 
 if __name__ == "__main__":
