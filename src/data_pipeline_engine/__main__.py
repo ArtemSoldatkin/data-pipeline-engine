@@ -1,44 +1,52 @@
 from __future__ import annotations
 
-import argparse
+from pathlib import Path
+
+import typer
 
 from data_pipeline_engine.engine import run_pipeline
 
+app = typer.Typer(
+    help="Run CSV data pipeline engine",
+    add_completion=False,
+)
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Run CSV data pipeline engine")
-    parser.add_argument("csv_path", help="Path to input CSV file")
-    parser.add_argument("--validation-config", dest="validation_config_path")
-    parser.add_argument("--transformation-config", dest="transformation_config_path")
-    parser.add_argument("--inspection-config", dest="inspection_config_path")
-    parser.add_argument(
+
+@app.command()
+def main(
+    csv_path: Path = typer.Argument(..., help="Path to input CSV file"),
+    validation_config_path: Path | None = typer.Option(None, "--validation-config"),
+    transformation_config_path: Path | None = typer.Option(None, "--transformation-config"),
+    inspection_config_path: Path | None = typer.Option(None, "--inspection-config"),
+    baseline_file_path: Path | None = typer.Option(
+        None,
         "--baseline-file",
-        dest="baseline_file_path",
         help="Path to baseline CSV used when inspection baseline.source=reference_dataset",
-    )
-    parser.add_argument("--cache-size", dest="cache_size", type=int, default=1)
-
-    args = parser.parse_args()
+    ),
+    cache_size: int = typer.Option(1, "--cache-size"),
+) -> None:
     if (
-        args.validation_config_path is None
-        and args.transformation_config_path is None
-        and args.inspection_config_path is None
+        validation_config_path is None
+        and transformation_config_path is None
+        and inspection_config_path is None
     ):
-        parser.error(
+        typer.echo(
             "At least one of --validation-config, --transformation-config, "
-            "or --inspection-config must be provided."
+            "or --inspection-config must be provided.",
+            err=True,
         )
+        raise typer.Exit(code=2)
 
     result = run_pipeline(
-        csv_path=args.csv_path,
-        validation_config_path=args.validation_config_path,
-        transformation_config_path=args.transformation_config_path,
-        inspection_config_path=args.inspection_config_path,
-        baseline_file_path=args.baseline_file_path,
-        cache_size=args.cache_size,
+        csv_path=csv_path,
+        validation_config_path=validation_config_path,
+        transformation_config_path=transformation_config_path,
+        inspection_config_path=inspection_config_path,
+        baseline_file_path=baseline_file_path,
+        cache_size=cache_size,
     )
-    print(result)
+    typer.echo(str(result))
 
 
 if __name__ == "__main__":
-    main()
+    app()
