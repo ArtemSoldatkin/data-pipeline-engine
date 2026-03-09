@@ -21,6 +21,7 @@ def run_pipeline(
     validation_config_path: str | Path | None = None,
     transformation_config_path: str | Path | None = None,
     inspection_config_path: str | Path | None = None,
+    baseline_file_path: str | Path | None = None,
     cache_size: int = 1,
 ) -> dict[str, Any]:
     """Run pipeline over a CSV with optional YAML configs (at least one required)."""
@@ -48,7 +49,12 @@ def run_pipeline(
     try:
         data = transformation(data, configs.transformation)
         data = validation(data, configs.validation)
-        data = inspection(data, configs.inspection, source_csv=csv_file)
+        data = inspection(
+            data,
+            configs.inspection,
+            source_csv=csv_file,
+            baseline_csv=baseline_file_path,
+        )
     except (StageExecutionError, ValidationExecutionError, ValueError) as exc:
         raise PipelineExecutionError(str(exc)) from exc
 
