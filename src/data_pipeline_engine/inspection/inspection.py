@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import polars as pl
 
 from data_pipeline_engine.inspection.baseline import evaluate_baseline_placeholder
@@ -19,13 +21,17 @@ def _compare_to_baseline_placeholder(metrics: dict[str, object]) -> None:
     _ = metrics
 
 
-def inspection(data: pl.DataFrame, config: InspectionRuleConfig | None) -> pl.DataFrame:
+def inspection(
+    data: pl.DataFrame,
+    config: InspectionRuleConfig | None,
+    source_csv: str | Path | None = None,
+) -> pl.DataFrame:
     """Run inspection calculations; baseline comparison is currently a placeholder."""
     if config is None:
         return data
 
     metrics: dict[str, object] = {
-        "baseline": evaluate_baseline_placeholder(config.baseline),
+        "baseline": evaluate_baseline_placeholder(config.baseline, source_csv=source_csv),
         "row_count": evaluate_row_count(data, config.row_count),
         "null_fraction": evaluate_null_fraction(data, config.null_fraction),
         "distinct_count": evaluate_distinct_count(data, config.distinct_count),

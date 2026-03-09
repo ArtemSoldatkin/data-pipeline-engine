@@ -32,8 +32,9 @@ class EnginePipelineOrderTests(unittest.TestCase):
                 calls.append("validation")
                 return data
 
-            def inspection_stage(data, config):
+            def inspection_stage(data, config, source_csv=None):
                 self.assertIsNotNone(config)
+                self.assertIsNotNone(source_csv)
                 calls.append("inspection")
                 return data
 
@@ -72,7 +73,7 @@ class EnginePipelineOrderTests(unittest.TestCase):
 
             with patch("data_pipeline_engine.engine.transformation", side_effect=lambda d, c: d), patch(
                 "data_pipeline_engine.engine.validation", side_effect=lambda d, c: d
-            ), patch("data_pipeline_engine.engine.inspection", side_effect=lambda d, c: d):
+            ), patch("data_pipeline_engine.engine.inspection", side_effect=lambda d, c, source_csv=None: d):
                 result1 = run_pipeline(
                     csv_path=csv_path,
                     inspection_config_path=inspection_path,
