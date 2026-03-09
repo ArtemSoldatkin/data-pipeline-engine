@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.models.rules import TransformationRuleConfig
 from data_pipeline_engine.transformation.cast import cast_columns
@@ -12,7 +12,7 @@ from data_pipeline_engine.transformation.normalize import normalize_columns
 from data_pipeline_engine.transformation.rename import rename_columns
 
 
-def transformation(data: pl.DataFrame, config: TransformationRuleConfig | None) -> pl.DataFrame:
+def transformation(data: pd.DataFrame, config: TransformationRuleConfig | None) -> pd.DataFrame:
     if config is None:
         return data
 

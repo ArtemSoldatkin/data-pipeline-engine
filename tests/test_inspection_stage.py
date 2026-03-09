@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import pytest
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.inspection import (
     evaluate_baseline,
@@ -15,9 +14,8 @@ from data_pipeline_engine.inspection import (
 from data_pipeline_engine.models.rules import InspectionRuleConfig
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection execution")
 def test_section_calculations_from_current_data() -> None:
-    data = pl.DataFrame(
+    data = pd.DataFrame(
         {
             "id": [1, 2, 2, 3],
             "status": ["active", "inactive", "inactive", "pending"],
@@ -57,11 +55,10 @@ def test_section_calculations_from_current_data() -> None:
     assert len(categorical["status"]["current_distribution"]) > 0
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection execution")
 def test_inspection_stage_returns_data() -> None:
-    data = pl.DataFrame({"id": [1, 2], "status": ["active", "inactive"]})
+    data = pd.DataFrame({"id": [1, 2], "status": ["active", "inactive"]})
     config = InspectionRuleConfig.model_validate(
         {"categorical_distribution_drift": {"columns": {"status": {"warn_above": 0.1}}}}
     )
     result = inspection(data, config)
-    assert result.height == 2
+    assert len(result) == 2

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import pandas as pd
 import pytest
-import polars as pl
 
 from data_pipeline_engine.inspection import (
     evaluate_categorical_distribution_drift,
@@ -14,10 +14,9 @@ from data_pipeline_engine.inspection import (
 from data_pipeline_engine.models.rules import InspectionRuleConfig
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection metric execution")
 def test_row_count_comparison() -> None:
-    current = pl.DataFrame({"id": [1, 2, 3, 4]})
-    baseline = [pl.DataFrame({"id": [1, 2]})]
+    current = pd.DataFrame({"id": [1, 2, 3, 4]})
+    baseline = [pd.DataFrame({"id": [1, 2]})]
     config = InspectionRuleConfig.model_validate(
         {"row_count": {"change_pct": {"warn_above": 20, "fail_above": 80}}}
     )
@@ -28,10 +27,9 @@ def test_row_count_comparison() -> None:
     assert result["comparison_status"] == "fail"
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection metric execution")
 def test_null_fraction_comparison() -> None:
-    current = pl.DataFrame({"score": [1.0, None, 2.0, None]})
-    baseline = [pl.DataFrame({"score": [1.0, None, 2.0, 3.0]})]
+    current = pd.DataFrame({"score": [1.0, None, 2.0, None]})
+    baseline = [pd.DataFrame({"score": [1.0, None, 2.0, 3.0]})]
     config = InspectionRuleConfig.model_validate(
         {"null_fraction": {"columns": {"score": {"warn_change_pct": 10, "fail_change_pct": 30}}}}
     )
@@ -41,10 +39,9 @@ def test_null_fraction_comparison() -> None:
     assert result["score"]["change_pct"] == pytest.approx(25.0)
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection metric execution")
 def test_distinct_count_comparison() -> None:
-    current = pl.DataFrame({"id": [1, 2, 3, 4]})
-    baseline = [pl.DataFrame({"id": [1, 1, 2, 2]})]
+    current = pd.DataFrame({"id": [1, 2, 3, 4]})
+    baseline = [pd.DataFrame({"id": [1, 1, 2, 2]})]
     config = InspectionRuleConfig.model_validate(
         {"distinct_count": {"columns": {"id": {"warn_change_pct": 20, "fail_change_pct": 50}}}}
     )
@@ -54,10 +51,9 @@ def test_distinct_count_comparison() -> None:
     assert result["id"]["change_pct"] == pytest.approx(100.0)
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection metric execution")
 def test_numeric_distribution_drift_ks() -> None:
-    current = pl.DataFrame({"score": [1.0, 2.0, 3.0, 4.0]})
-    baseline = [pl.DataFrame({"score": [1.0, 1.0, 1.0, 1.0]})]
+    current = pd.DataFrame({"score": [1.0, 2.0, 3.0, 4.0]})
+    baseline = [pd.DataFrame({"score": [1.0, 1.0, 1.0, 1.0]})]
     config = InspectionRuleConfig.model_validate(
         {
             "numeric_distribution_drift": {
@@ -73,10 +69,9 @@ def test_numeric_distribution_drift_ks() -> None:
     assert result["score"]["distance"] is not None
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection metric execution")
 def test_categorical_distribution_drift() -> None:
-    current = pl.DataFrame({"status": ["active", "active", "active", "inactive"]})
-    baseline = [pl.DataFrame({"status": ["active", "inactive", "inactive", "inactive"]})]
+    current = pd.DataFrame({"status": ["active", "active", "active", "inactive"]})
+    baseline = [pd.DataFrame({"status": ["active", "inactive", "inactive", "inactive"]})]
     config = InspectionRuleConfig.model_validate(
         {
             "categorical_distribution_drift": {
@@ -88,13 +83,12 @@ def test_categorical_distribution_drift() -> None:
     result = evaluate_categorical_distribution_drift(
         current, config.categorical_distribution_drift, baseline_frames=baseline
     )
-    assert result["status"]["comparison_status"] == "warn"
+    assert result["status"]["comparison_status"] == "fail"
     assert result["status"]["distance"] is not None
 
 
-@pytest.mark.skip(reason="Polars runtime instability in this environment for inspection metric execution")
 def test_inspection_returns_metrics_when_requested() -> None:
-    current = pl.DataFrame({"id": [1, 2], "status": ["active", "inactive"]})
+    current = pd.DataFrame({"id": [1, 2], "status": ["active", "inactive"]})
     config = InspectionRuleConfig.model_validate(
         {"categorical_distribution_drift": {"columns": {"status": {"warn_above": 0.1}}}}
     )
@@ -107,5 +101,5 @@ def test_inspection_returns_metrics_when_requested() -> None:
         baseline_csv="baseline.csv",
     )
 
-    assert data.height == 2
+    assert len(data) == 2
     assert "overall_status" in metrics

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.cache_manager import read_from_cache
 from data_pipeline_engine.models.rules import InspectionBaselineConfig
@@ -12,7 +12,7 @@ def load_baseline_frames(
     config: InspectionBaselineConfig,
     source_csv: str | Path | None = None,
     baseline_csv: str | Path | None = None,
-) -> list[pl.DataFrame]:
+) -> list[pd.DataFrame]:
     if source_csv is None and config.source != "reference_dataset":
         return []
     return read_from_cache(
@@ -30,7 +30,10 @@ def evaluate_baseline(
     baseline_frames = load_baseline_frames(
         config=config, source_csv=source_csv, baseline_csv=baseline_csv
     )
-    baseline_rows = [frame.height for frame in baseline_frames]
+    baseline_rows = [
+        len(frame) if hasattr(frame, "__len__") else int(getattr(frame, "height", 0))
+        for frame in baseline_frames
+    ]
     return {
         "source": config.source,
         "status": "ready" if baseline_frames else "missing",

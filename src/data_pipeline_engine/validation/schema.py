@@ -1,26 +1,24 @@
 from __future__ import annotations
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.models.rules import ColumnType, TableSchemaColumn
 
 
-def _map_polars_type(dtype: pl.DataType) -> ColumnType:
-    if dtype in (pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64):
+def _map_pandas_type(dtype: object) -> ColumnType:
+    if pd.api.types.is_integer_dtype(dtype):
         return ColumnType.INT
-    if dtype in (pl.Float32, pl.Float64):
+    if pd.api.types.is_float_dtype(dtype):
         return ColumnType.FLOAT
-    if dtype == pl.Boolean:
+    if pd.api.types.is_bool_dtype(dtype):
         return ColumnType.BOOL
-    if dtype == pl.Date:
-        return ColumnType.DATE
-    if dtype == pl.Datetime:
+    if pd.api.types.is_datetime64_any_dtype(dtype):
         return ColumnType.DATETIME
     return ColumnType.STRING
 
 
 def verify_schema(
-    data: pl.DataFrame, schema: list[TableSchemaColumn], allow_extra_columns: bool
+    data: pd.DataFrame, schema: list[TableSchemaColumn], allow_extra_columns: bool
 ) -> list[str]:
     errors: list[str] = []
     data_columns = set(data.columns)
@@ -33,14 +31,14 @@ def verify_schema(
             continue
 
         series = data[column.name]
-        actual_type = _map_polars_type(series.dtype)
+        actual_type = _map_pandas_type(series.dtype)
         if actual_type != column.type:
             errors.append(
                 f"Column '{column.name}' has type '{actual_type.value}', "
                 f"expected '{column.type.value}'"
             )
 
-        if not column.nullable and series.null_count() > 0:
+        if not column.nullable and bool(series.isna().any()):
             errors.append(f"Column '{column.name}' contains nulls, but nullable is false")
 
     if not allow_extra_columns:

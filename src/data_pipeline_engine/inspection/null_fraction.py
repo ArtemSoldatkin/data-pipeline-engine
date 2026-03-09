@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import (
     absolute_delta_pct,
@@ -13,12 +13,12 @@ from data_pipeline_engine.models.rules import InspectionColumnThresholdsConfig
 
 
 def evaluate_null_fraction(
-    data: pl.DataFrame,
+    data: pd.DataFrame,
     config: InspectionColumnThresholdsConfig,
-    baseline_frames: list[pl.DataFrame] | None = None,
+    baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
-    denominator = max(data.height, 1)
+    denominator = max(len(data), 1)
 
     for column, thresholds in config.columns.items():
         if column not in data.columns:
@@ -30,13 +30,13 @@ def evaluate_null_fraction(
             }
             continue
 
-        current_fraction = data[column].null_count() / denominator
+        current_fraction = float(data[column].isna().sum()) / denominator
         baseline_fractions: list[float] = []
         for frame in baseline_frames or []:
             if column not in frame.columns:
                 continue
-            frame_denominator = max(frame.height, 1)
-            baseline_fractions.append(frame[column].null_count() / frame_denominator)
+            frame_denominator = max(len(frame), 1)
+            baseline_fractions.append(float(frame[column].isna().sum()) / frame_denominator)
 
         baseline_fraction = mean_or_none(baseline_fractions)
         change_pct = absolute_delta_pct(current_fraction, baseline_fraction)

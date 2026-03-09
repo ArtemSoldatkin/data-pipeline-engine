@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import polars as pl
+import pandas as pd
 
 
-def drop_columns(data: pl.DataFrame, columns: list[str]) -> pl.DataFrame:
+def drop_columns(data: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     existing = [column for column in columns if column in data.columns]
-    return data.drop(existing) if existing else data
+    return data.drop(columns=existing) if existing else data

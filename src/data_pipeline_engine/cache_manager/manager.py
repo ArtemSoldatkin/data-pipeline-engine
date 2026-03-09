@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 from typing import Literal
 
-import polars as pl
+import pandas as pd
 
 
 _CACHE_CSV_PATTERN = re.compile(r"^\d{8}T\d{9,}Z_.*\.csv$")
@@ -29,7 +29,7 @@ def _cache_files(source_csv: Path) -> list[Path]:
     )
 
 
-def write_to_cache(data: pl.DataFrame, source_csv: str | Path, cache_size: int) -> Path:
+def write_to_cache(data: pd.DataFrame, source_csv: str | Path, cache_size: int) -> Path:
     source_path = Path(source_csv)
     if cache_size < 1:
         raise ValueError("cache_size must be at least 1")
@@ -39,7 +39,7 @@ def write_to_cache(data: pl.DataFrame, source_csv: str | Path, cache_size: int) 
 
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     output_path = cache_dir / f"{timestamp}_{source_path.stem}.csv"
-    data.write_csv(output_path)
+    data.to_csv(output_path, index=False)
 
     cached_files = _cache_files(source_path)
     excess = len(cached_files) - cache_size
@@ -54,7 +54,7 @@ def read_from_cache(
     strategy: Literal["previous_run", "rolling_window", "reference_dataset"],
     rolling_window_size: int = 3,
     reference_csv: str | Path | None = None,
-) -> list[pl.DataFrame]:
+) -> list[pd.DataFrame]:
     source_path = Path(source_csv)
     if strategy == "reference_dataset":
         if reference_csv is None:
@@ -64,7 +64,7 @@ def read_from_cache(
         reference_path = Path(reference_csv)
         if not reference_path.exists():
             raise FileNotFoundError(f"Baseline CSV file does not exist: {reference_path}")
-        return [pl.read_csv(reference_path)]
+        return [pd.read_csv(reference_path)]
 
     cached_files = _cache_files(source_path)
     if not cached_files:
@@ -75,4 +75,4 @@ def read_from_cache(
     else:
         selected = cached_files[-max(rolling_window_size, 1) :]
 
-    return [pl.read_csv(path) for path in selected]
+    return [pd.read_csv(path) for path in selected]

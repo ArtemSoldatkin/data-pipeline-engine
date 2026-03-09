@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.models.rules import RowDeduplicateRuleConfig
 
 
 def deduplicate_rows(
-    data: pl.DataFrame, deduplication: RowDeduplicateRuleConfig | None
-) -> pl.DataFrame:
+    data: pd.DataFrame, deduplication: RowDeduplicateRuleConfig | None
+) -> pd.DataFrame:
     if deduplication is None or not deduplication.keys:
         return data
 
@@ -16,4 +16,4 @@ def deduplicate_rows(
         return data
 
     keep = "first" if deduplication.strategy == "keep_first" else "last"
-    return data.unique(subset=subset, keep=keep, maintain_order=True)
+    return data.drop_duplicates(subset=subset, keep=keep)

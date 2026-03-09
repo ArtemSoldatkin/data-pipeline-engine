@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.models.rules import ValidationRuleConfig
 from data_pipeline_engine.validation.allow_empty import check_allow_empty
@@ -12,7 +12,7 @@ from data_pipeline_engine.validation.row_rules import run_row_rules
 from data_pipeline_engine.validation.schema import verify_schema
 
 
-def validation(data: pl.DataFrame, config: ValidationRuleConfig | None) -> pl.DataFrame:
+def validation(data: pd.DataFrame, config: ValidationRuleConfig | None) -> pd.DataFrame:
     """Run validation checks defined in config."""
     if config is None:
         return data

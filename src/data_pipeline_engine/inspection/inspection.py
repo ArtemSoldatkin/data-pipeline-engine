@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.inspection.baseline import evaluate_baseline, load_baseline_frames
 from data_pipeline_engine.inspection.categorical_distribution_drift import (
@@ -48,12 +48,12 @@ def _overall_status(metrics: dict[str, Any]) -> str:
 
 
 def inspection(
-    data: pl.DataFrame,
+    data: pd.DataFrame,
     config: InspectionRuleConfig | None,
     source_csv: str | Path | None = None,
     baseline_csv: str | Path | None = None,
     return_metrics: bool = False,
-) -> pl.DataFrame | tuple[pl.DataFrame, dict[str, Any]]:
+) -> pd.DataFrame | tuple[pd.DataFrame, dict[str, Any]]:
     """Run inspection calculations and optionally return computed inspection metrics."""
     if config is None:
         if return_metrics:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import (
     mean_or_none,
@@ -13,9 +13,9 @@ from data_pipeline_engine.models.rules import InspectionColumnThresholdsConfig
 
 
 def evaluate_distinct_count(
-    data: pl.DataFrame,
+    data: pd.DataFrame,
     config: InspectionColumnThresholdsConfig,
-    baseline_frames: list[pl.DataFrame] | None = None,
+    baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
 
@@ -29,11 +29,11 @@ def evaluate_distinct_count(
             }
             continue
 
-        current_distinct = int(data[column].n_unique())
+        current_distinct = int(data[column].nunique(dropna=False))
         baseline_values: list[float] = []
         for frame in baseline_frames or []:
             if column in frame.columns:
-                baseline_values.append(float(frame[column].n_unique()))
+                baseline_values.append(float(frame[column].nunique(dropna=False)))
         baseline_distinct = mean_or_none(baseline_values)
         change_pct = relative_change_pct(float(current_distinct), baseline_distinct)
 

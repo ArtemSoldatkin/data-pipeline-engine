@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 
 def parse_literal(token: str) -> Any:
@@ -45,26 +45,32 @@ def evaluate_derive(expression: str, row: dict[str, Any]) -> Any:
     return resolve_token(parse_literal(compact), row)
 
 
-def predicate_to_expr(expression: str) -> pl.Expr:
+def predicate_to_mask(data: pd.DataFrame, expression: str) -> pd.Series:
     match = re.match(r"^\s*([A-Za-z_][\w]*)\s*(==|!=|>=|<=|>|<)\s*(.+?)\s*$", expression)
     if not match:
         raise ValueError(f"Unsupported expression: {expression}")
 
     lhs_col, operator, rhs_raw = match.groups()
-    lhs = pl.col(lhs_col)
+    if lhs_col not in data.columns:
+        raise ValueError(f"Unknown column in expression: {lhs_col}")
+
+    lhs = data[lhs_col]
     parsed_rhs = parse_literal(rhs_raw)
 
     if parsed_rhs is None:
         if operator == "==":
-            return lhs.is_null()
+            return lhs.isna()
         if operator == "!=":
-            return lhs.is_not_null()
+            return lhs.notna()
         raise ValueError(f"Unsupported null comparison in expression: {expression}")
 
     if isinstance(parsed_rhs, tuple) and parsed_rhs[0] == "column_ref":
-        rhs = pl.col(parsed_rhs[1])
+        rhs_col = parsed_rhs[1]
+        if rhs_col not in data.columns:
+            raise ValueError(f"Unknown column in expression: {rhs_col}")
+        rhs: Any = data[rhs_col]
     else:
-        rhs = pl.lit(parsed_rhs)
+        rhs = parsed_rhs
 
     if operator == "==":
         return lhs == rhs
@@ -79,10 +85,15 @@ def predicate_to_expr(expression: str) -> pl.Expr:
     return lhs <= rhs
 
 
-def row_rule_to_expr(expression: str) -> pl.Expr:
+def row_rule_to_mask(data: pd.DataFrame, expression: str) -> pd.Series:
     parts = re.split(r"\s+implies\s+", expression, maxsplit=1, flags=re.IGNORECASE)
     if len(parts) == 2:
-        antecedent = predicate_to_expr(parts[0]).fill_null(False)
-        consequent = predicate_to_expr(parts[1]).fill_null(False)
+        antecedent = predicate_to_mask(data, parts[0]).fillna(False)
+        consequent = predicate_to_mask(data, parts[1]).fillna(False)
         return (~antecedent) | consequent
-    return predicate_to_expr(expression)
+    return predicate_to_mask(data, expression)
+
+
+# Backward-compatible alias name used by older call sites.
+predicate_to_expr = predicate_to_mask
+row_rule_to_expr = row_rule_to_mask

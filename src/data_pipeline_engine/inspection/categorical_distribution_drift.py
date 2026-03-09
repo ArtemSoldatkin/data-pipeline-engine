@@ -2,24 +2,15 @@ from __future__ import annotations
 
 from typing import Any
 
-import polars as pl
+import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import status_from_thresholds
 from data_pipeline_engine.models.rules import InspectionCategoricalDistributionDriftConfig
 
 
-def _distribution(data: pl.DataFrame, column: str) -> dict[str, float]:
-    counts = (
-        data[column]
-        .drop_nulls()
-        .cast(pl.String)
-        .value_counts(sort=False)
-        .to_dicts()
-    )
-    total = sum(float(item["count"]) for item in counts)
-    if total == 0:
-        return {}
-    return {str(item[column]): float(item["count"]) / total for item in counts}
+def _distribution(data: pd.DataFrame, column: str) -> dict[str, float]:
+    counts = data[column].dropna().astype("string").value_counts(normalize=True)
+    return {str(key): float(value) for key, value in counts.items()}
 
 
 def _total_variation_distance(
@@ -33,9 +24,9 @@ def _total_variation_distance(
 
 
 def evaluate_categorical_distribution_drift(
-    data: pl.DataFrame,
+    data: pd.DataFrame,
     config: InspectionCategoricalDistributionDriftConfig,
-    baseline_frames: list[pl.DataFrame] | None = None,
+    baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
 
