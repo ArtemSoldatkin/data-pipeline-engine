@@ -30,7 +30,7 @@ result = run_pipeline(
     validation_config_path="configs/examples/validation.yaml",
     transformation_config_path="configs/examples/transformation.yaml",
     inspection_config_path="configs/examples/inspection.yaml",
-    baseline_file_path=None,
+    reference_dataset_path=None,
     cache_size=3,
 )
 
@@ -60,7 +60,7 @@ Optional baseline file for inspection reference mode:
 python -m data_pipeline_engine \
   configs/examples/sample.csv \
   --inspection-config configs/examples/inspection.yaml \
-  --baseline-file path/to/reference.csv
+  --reference-dataset path/to/reference.csv
 ```
 
 ## `run_pipeline` Contract
@@ -70,7 +70,7 @@ Arguments:
 - `validation_config_path`: Optional validation config YAML path.
 - `transformation_config_path`: Optional transformation config YAML path.
 - `inspection_config_path`: Optional inspection config YAML path.
-- `baseline_file_path`: Optional baseline CSV path (used by inspection when baseline source is `reference_dataset`).
+- `reference_dataset_path`: Optional baseline CSV path (used by inspection when baseline source is `reference_dataset`).
 - `cache_size`: Number of cached output snapshots retained per source CSV.
 
 Returns a dictionary with:

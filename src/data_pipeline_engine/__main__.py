@@ -29,9 +29,9 @@ def main(
     validation_config_path: Path | None = typer.Option(None, "--validation-config"),
     transformation_config_path: Path | None = typer.Option(None, "--transformation-config"),
     inspection_config_path: Path | None = typer.Option(None, "--inspection-config"),
-    baseline_file_path: Path | None = typer.Option(
+    reference_dataset_path: Path | None = typer.Option(
         None,
-        "--baseline-file",
+        "--reference-dataset",
         help="Path to baseline CSV used when inspection baseline.source=reference_dataset",
     ),
     cache_size: int = typer.Option(1, "--cache-size"),
@@ -43,7 +43,7 @@ def main(
         validation_config_path: Path to the validation YAML config, if provided.
         transformation_config_path: Path to the transformation YAML config, if provided.
         inspection_config_path: Path to the inspection YAML config, if provided.
-        baseline_file_path: Path to the baseline CSV used for reference-dataset inspection mode.
+        reference_dataset_path: Path to the baseline CSV used for reference-dataset inspection mode.
         cache_size: Maximum number of cache snapshots to keep per source CSV.
     
     Returns:
@@ -69,7 +69,7 @@ def main(
         validation_config_path=validation_config_path,
         transformation_config_path=transformation_config_path,
         inspection_config_path=inspection_config_path,
-        baseline_file_path=baseline_file_path,
+        reference_dataset_path=reference_dataset_path,
         cache_size=cache_size,
     )
     typer.echo(str(result))
