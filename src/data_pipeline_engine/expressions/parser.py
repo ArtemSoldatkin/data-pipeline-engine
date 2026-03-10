@@ -1,3 +1,14 @@
+"""Expression parser module for evaluating derive and predicate expressions.
+
+Provides pipeline functionality and includes: parse_literal, resolve_token, evaluate_derive, predicate_to_mask.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.expressions.parser import parse_literal
+
+    parse_literal(...)"""
+
 from __future__ import annotations
 
 import re
@@ -7,6 +18,14 @@ import pandas as pd
 
 
 def parse_literal(token: str) -> Any:
+    """Parse literal.
+    
+    Args:
+        token: Token value to parse or resolve.
+    
+    Returns:
+        Computed result of this operation.
+    """
     normalized = token.strip()
     if normalized.lower() == "null":
         return None
@@ -21,12 +40,30 @@ def parse_literal(token: str) -> Any:
 
 
 def resolve_token(token: Any, row: dict[str, Any]) -> Any:
+    """Resolve token.
+    
+    Args:
+        token: Token value to parse or resolve.
+        row: Single row represented as a dictionary of column values.
+    
+    Returns:
+        Computed result of this operation.
+    """
     if isinstance(token, tuple) and token[0] == "column_ref":
         return row.get(token[1])
     return token
 
 
 def evaluate_derive(expression: str, row: dict[str, Any]) -> Any:
+    """Evaluate derive.
+    
+    Args:
+        expression: Expression string to parse or evaluate.
+        row: Single row represented as a dictionary of column values.
+    
+    Returns:
+        Computed result of this operation.
+    """
     compact = " ".join(expression.split())
     case_pattern = re.compile(
         r"^case when ([A-Za-z_]\w*) >= ([\d.]+) then \"([^\"]+)\" "
@@ -46,6 +83,18 @@ def evaluate_derive(expression: str, row: dict[str, Any]) -> Any:
 
 
 def predicate_to_mask(data: pd.DataFrame, expression: str) -> pd.Series:
+    """Predicate to mask.
+    
+    Args:
+        data: Dataset to process.
+        expression: Expression string to parse or evaluate.
+    
+    Returns:
+        Boolean mask indicating which rows satisfy the expression.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     match = re.match(r"^\s*([A-Za-z_][\w]*)\s*(==|!=|>=|<=|>|<)\s*(.+?)\s*$", expression)
     if not match:
         raise ValueError(f"Unsupported expression: {expression}")
@@ -86,6 +135,15 @@ def predicate_to_mask(data: pd.DataFrame, expression: str) -> pd.Series:
 
 
 def row_rule_to_mask(data: pd.DataFrame, expression: str) -> pd.Series:
+    """Row rule to mask.
+    
+    Args:
+        data: Dataset to process.
+        expression: Expression string to parse or evaluate.
+    
+    Returns:
+        Boolean mask indicating rows that satisfy the row rule.
+    """
     parts = re.split(r"\s+implies\s+", expression, maxsplit=1, flags=re.IGNORECASE)
     if len(parts) == 2:
         antecedent = predicate_to_mask(data, parts[0]).fillna(False)

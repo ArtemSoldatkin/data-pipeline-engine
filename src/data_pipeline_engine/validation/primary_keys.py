@@ -1,9 +1,29 @@
+"""Validation primary keys module for dataframe validation checks.
+
+Provides pipeline functionality and includes: check_primary_keys.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.validation.primary_keys import check_primary_keys
+
+    check_primary_keys(...)"""
+
 from __future__ import annotations
 
 import pandas as pd
 
 
 def check_primary_keys(data: pd.DataFrame, primary_key: list[str]) -> list[str]:
+    """Check primary keys.
+    
+    Args:
+        data: Dataset to process.
+        primary_key: Columns that together define the primary key.
+    
+    Returns:
+        Validation issues found by this check. Empty when all checks pass.
+    """
     if not primary_key:
         return []
 

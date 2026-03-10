@@ -1,3 +1,14 @@
+"""Cache manager module for reading and writing pipeline cache files.
+
+Provides pipeline functionality and includes: _cache_dir_for_source, _cache_files, write_to_cache, read_from_cache.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.cache_manager.manager import write_to_cache
+
+    write_to_cache(...)"""
+
 from __future__ import annotations
 
 import re
@@ -11,10 +22,26 @@ _CACHE_CSV_PATTERN = re.compile(r"^\d{8}T\d{9,}Z_.*\.csv$")
 
 
 def _cache_dir_for_source(source_csv: Path) -> Path:
+    """Cache dir for source.
+    
+    Args:
+        source_csv: Source CSV path used to resolve cache or baseline data.
+    
+    Returns:
+        Cache directory path associated with the given source CSV file.
+    """
     return source_csv.parent / ".data_pipeline_cache"
 
 
 def _cache_files(source_csv: Path) -> list[Path]:
+    """Cache files.
+    
+    Args:
+        source_csv: Source CSV path used to resolve cache or baseline data.
+    
+    Returns:
+        Sorted list of cache snapshot files for the given source CSV.
+    """
     cache_dir = _cache_dir_for_source(source_csv)
     if not cache_dir.exists():
         return []
@@ -29,6 +56,19 @@ def _cache_files(source_csv: Path) -> list[Path]:
 
 
 def write_to_cache(data: pd.DataFrame, source_csv: str | Path, cache_size: int) -> Path:
+    """Write to cache.
+    
+    Args:
+        data: Dataset to process.
+        source_csv: Source CSV path used to resolve cache or baseline data.
+        cache_size: Maximum number of cache snapshots to keep per source CSV.
+    
+    Returns:
+        Path to the newly written cache snapshot file.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     source_path = Path(source_csv)
     if cache_size < 1:
         raise ValueError("cache_size must be at least 1")
@@ -54,6 +94,20 @@ def read_from_cache(
     rolling_window_size: int = 3,
     reference_csv: str | Path | None = None,
 ) -> list[pd.DataFrame]:
+    """Read from cache.
+    
+    Args:
+        source_csv: Source CSV path used to resolve cache or baseline data.
+        strategy: Baseline loading strategy to use.
+        rolling_window_size: Number of most recent cached runs to include for rolling-window baseline.
+        reference_csv: Path to an explicit reference CSV used as baseline input.
+    
+    Returns:
+        Baseline data frames loaded from cache or a reference dataset.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     source_path = Path(source_csv)
     if strategy == "reference_dataset":
         if reference_csv is None:

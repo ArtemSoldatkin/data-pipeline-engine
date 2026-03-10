@@ -1,3 +1,14 @@
+"""Validation orchestration module for executing all validation checks.
+
+Provides pipeline functionality and includes: validation.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.validation.validation import validation
+
+    validation(...)"""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -13,7 +24,18 @@ from data_pipeline_engine.validation.schema import verify_schema
 
 
 def validation(data: pd.DataFrame, config: ValidationRuleConfig | None) -> pd.DataFrame:
-    """Run validation checks defined in config."""
+    """Validation.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+    
+    Returns:
+        Validated dataset when all checks pass.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     if config is None:
         return data
 

@@ -1,4 +1,13 @@
-"""Inspection stage package."""
+"""Inspection package module exposing inspection stage utilities.
+
+Provides pipeline functionality and includes: run_inspection, inspection, evaluate_baseline, load_baseline_frames.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection import inspection
+
+    inspection(...)"""
 
 from data_pipeline_engine.inspection.baseline import (
     evaluate_baseline,

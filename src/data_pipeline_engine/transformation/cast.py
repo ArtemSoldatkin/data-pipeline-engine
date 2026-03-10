@@ -1,3 +1,14 @@
+"""Transformation cast module for dataframe transformation operations.
+
+Provides pipeline functionality and includes: cast_columns.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.transformation.cast import cast_columns
+
+    cast_columns(...)"""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -17,6 +28,15 @@ _DTYPE_MAP: dict[TransformationCastType, str] = {
 
 
 def cast_columns(data: pd.DataFrame, casts: dict[str, TransformationCastType]) -> pd.DataFrame:
+    """Cast columns.
+    
+    Args:
+        data: Dataset to process.
+        casts: Column cast rules keyed by column name.
+    
+    Returns:
+        Dataset after applying the configured transformation logic.
+    """
     if not casts:
         return data
 

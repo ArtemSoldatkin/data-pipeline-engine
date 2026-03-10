@@ -1,3 +1,6 @@
+# Transformation configuration for `run_pipeline(..., transformation_config_path=...)`.
+# Shape matches `TransformationRuleConfig`.
+
 columns:
   rename:
     user_id: id

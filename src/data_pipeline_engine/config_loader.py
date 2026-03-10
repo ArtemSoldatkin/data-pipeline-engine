@@ -1,3 +1,14 @@
+"""Configuration loader module for parsing and validating YAML pipeline configs.
+
+Provides pipeline functionality and includes: _load_yaml_file, load_pipeline_configs, ConfigLoadError.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.config_loader import load_pipeline_configs
+
+    load_pipeline_configs(...)"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -18,6 +29,17 @@ class ConfigLoadError(Exception):
 
 
 def _load_yaml_file(path: str | Path) -> dict[str, Any]:
+    """Load yaml file.
+    
+    Args:
+        path: Path to the YAML configuration file to read.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     file_path = Path(path)
     if not file_path.exists():
         raise ConfigLoadError(f"Config file does not exist: {file_path}")
@@ -39,6 +61,19 @@ def load_pipeline_configs(
     validation_config_path: str | Path | None = None,
     inspection_config_path: str | Path | None = None,
 ) -> PipelineConfigs:
+    """Load pipeline configs.
+    
+    Args:
+        transformation_config_path: Path to the transformation YAML config, if provided.
+        validation_config_path: Path to the validation YAML config, if provided.
+        inspection_config_path: Path to the inspection YAML config, if provided.
+    
+    Returns:
+        Computed result of this operation.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     if (
         transformation_config_path is None
         and validation_config_path is None

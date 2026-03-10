@@ -1,3 +1,7 @@
+# Inspection configuration for `run_pipeline(..., inspection_config_path=...)`.
+# Shape matches `InspectionRuleConfig`.
+# If `baseline.source: reference_dataset`, pass `baseline_file_path` to `run_pipeline`.
+
 baseline:
   source: previous_run # other options could be: rolling_window, reference_dataset
 
