@@ -1,3 +1,6 @@
+# Validation configuration for `run_pipeline(..., validation_config_path=...)`.
+# Shape matches `ValidationRuleConfig`.
+
 rows:
   allow_empty: false
   min_rows: 3

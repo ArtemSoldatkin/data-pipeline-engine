@@ -1,4 +1,14 @@
-"""Pipeline stage implementations."""
+"""Transformation package module exposing transformation stage entrypoints.
+
+Provides pipeline functionality and includes: run_transformation, StageExecutionError, transformation.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.transformation import run_transformation
+
+    run_transformation(...)
+"""
 
 from data_pipeline_engine.transformation.errors import StageExecutionError
 from data_pipeline_engine.transformation.transformation import transformation

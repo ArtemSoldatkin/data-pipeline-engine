@@ -1,3 +1,15 @@
+"""Numeric drift module for inspection distribution comparisons.
+
+Provides pipeline functionality and includes: _to_numeric_values, _uniform_edges, _histogram_proportions, _psi_distance.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection.numeric_distribution_drift import _to_numeric_values
+
+    _to_numeric_values(...)
+"""
+
 from __future__ import annotations
 
 import math
@@ -10,6 +22,15 @@ from data_pipeline_engine.models.rules import InspectionNumericDistributionDrift
 
 
 def _to_numeric_values(data: pd.DataFrame, column: str) -> list[float]:
+    """To numeric values.
+    
+    Args:
+        data: Dataset to process.
+        column: Column name to evaluate or transform.
+    
+    Returns:
+        Numeric values converted from the selected column, excluding non-numeric entries.
+    """
     if column not in data.columns:
         return []
     series = pd.to_numeric(data[column], errors="coerce").dropna()
@@ -17,6 +38,15 @@ def _to_numeric_values(data: pd.DataFrame, column: str) -> list[float]:
 
 
 def _uniform_edges(values: list[float], bins: int = 10) -> list[float]:
+    """Uniform edges.
+    
+    Args:
+        values: Numeric values to aggregate into bins.
+        bins: Number of bins to generate for histogram-based comparisons.
+    
+    Returns:
+        List of numeric values used for metric computation.
+    """
     min_value = min(values)
     max_value = max(values)
     if min_value == max_value:
@@ -26,6 +56,15 @@ def _uniform_edges(values: list[float], bins: int = 10) -> list[float]:
 
 
 def _histogram_proportions(values: list[float], edges: list[float]) -> list[float]:
+    """Histogram proportions.
+    
+    Args:
+        values: Numeric values to aggregate into bins.
+        edges: Histogram bin boundaries.
+    
+    Returns:
+        List of numeric values used for metric computation.
+    """
     counts = [0.0] * (len(edges) - 1)
     if not values:
         return counts
@@ -47,6 +86,15 @@ def _histogram_proportions(values: list[float], edges: list[float]) -> list[floa
 
 
 def _psi_distance(current: list[float], baseline: list[float]) -> float:
+    """Psi distance.
+    
+    Args:
+        current: Current numeric sample values.
+        baseline: Baseline numeric sample values.
+    
+    Returns:
+        Computed result of this operation.
+    """
     edges = _uniform_edges(current + baseline)
     current_p = _histogram_proportions(current, edges)
     baseline_p = _histogram_proportions(baseline, edges)
@@ -58,6 +106,15 @@ def _psi_distance(current: list[float], baseline: list[float]) -> float:
 
 
 def _js_divergence(current: list[float], baseline: list[float]) -> float:
+    """Js divergence.
+    
+    Args:
+        current: Current numeric sample values.
+        baseline: Baseline numeric sample values.
+    
+    Returns:
+        Computed result of this operation.
+    """
     edges = _uniform_edges(current + baseline)
     current_p = _histogram_proportions(current, edges)
     baseline_p = _histogram_proportions(baseline, edges)
@@ -77,6 +134,15 @@ def _js_divergence(current: list[float], baseline: list[float]) -> float:
 
 
 def _ks_distance(current: list[float], baseline: list[float]) -> float:
+    """Ks distance.
+    
+    Args:
+        current: Current numeric sample values.
+        baseline: Baseline numeric sample values.
+    
+    Returns:
+        Computed result of this operation.
+    """
     current_sorted = sorted(current)
     baseline_sorted = sorted(baseline)
     all_values = sorted(set(current_sorted + baseline_sorted))
@@ -99,6 +165,16 @@ def _ks_distance(current: list[float], baseline: list[float]) -> float:
 
 
 def _distribution_distance(method: str, current: list[float], baseline: list[float]) -> float:
+    """Distribution distance.
+    
+    Args:
+        method: Distance method to use for numeric distribution comparison.
+        current: Current numeric sample values.
+        baseline: Baseline numeric sample values.
+    
+    Returns:
+        Computed result of this operation.
+    """
     if method == "ks":
         return _ks_distance(current, baseline)
     if method == "js_divergence":
@@ -111,6 +187,16 @@ def evaluate_numeric_distribution_drift(
     config: InspectionNumericDistributionDriftConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
+    """Evaluate numeric distribution drift.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+        baseline_frames: Baseline data frames used for metric comparisons.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    """
     result: dict[str, dict[str, Any]] = {}
 
     for column, thresholds in config.columns.items():

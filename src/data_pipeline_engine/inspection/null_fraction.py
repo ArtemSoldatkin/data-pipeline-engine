@@ -1,3 +1,15 @@
+"""Null fraction inspection module for column-level baseline comparisons.
+
+Provides pipeline functionality and includes: evaluate_null_fraction.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection.null_fraction import evaluate_null_fraction
+
+    evaluate_null_fraction(...)
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -17,6 +29,16 @@ def evaluate_null_fraction(
     config: InspectionColumnThresholdsConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
+    """Evaluate null fraction.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+        baseline_frames: Baseline data frames used for metric comparisons.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    """
     result: dict[str, dict[str, Any]] = {}
     denominator = max(len(data), 1)
 

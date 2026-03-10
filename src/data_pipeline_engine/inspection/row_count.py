@@ -1,3 +1,15 @@
+"""Row count inspection module for baseline comparison metrics.
+
+Provides pipeline functionality and includes: evaluate_row_count.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection.row_count import evaluate_row_count
+
+    evaluate_row_count(...)
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -17,6 +29,16 @@ def evaluate_row_count(
     config: InspectionRowCountConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, Any]:
+    """Evaluate row count.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+        baseline_frames: Baseline data frames used for metric comparisons.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    """
     current_rows = len(data)
     baseline_values = [float(len(frame)) for frame in (baseline_frames or [])]
     baseline_rows = mean_or_none(baseline_values)

@@ -1,3 +1,15 @@
+"""Pipeline engine module for orchestrating transformation, validation, and inspection.
+
+Provides pipeline functionality and includes: run_pipeline, PipelineExecutionError.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.engine import run_pipeline
+
+    run_pipeline(...)
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -16,6 +28,9 @@ class PipelineExecutionError(Exception):
     """Raised when pipeline validations fail."""
 
 
+__all__ = ["PipelineExecutionError", "run_pipeline"]
+
+
 def run_pipeline(
     csv_path: str | Path,
     validation_config_path: str | Path | None = None,
@@ -24,7 +39,22 @@ def run_pipeline(
     baseline_file_path: str | Path | None = None,
     cache_size: int = 1,
 ) -> dict[str, Any]:
-    """Run pipeline over a CSV with optional YAML configs (at least one required)."""
+    """Run pipeline.
+    
+    Args:
+        csv_path: Path to the input CSV file.
+        validation_config_path: Path to the validation YAML config, if provided.
+        transformation_config_path: Path to the transformation YAML config, if provided.
+        inspection_config_path: Path to the inspection YAML config, if provided.
+        baseline_file_path: Path to the baseline CSV used for reference-dataset inspection mode.
+        cache_size: Maximum number of cache snapshots to keep per source CSV.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     if (
         transformation_config_path is None
         and validation_config_path is None

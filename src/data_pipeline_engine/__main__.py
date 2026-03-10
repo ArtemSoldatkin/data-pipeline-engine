@@ -1,3 +1,15 @@
+"""CLI entrypoint module for executing the data pipeline engine.
+
+Provides pipeline functionality and includes: main, app.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.__main__ import main
+
+    main(...)
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -25,6 +37,22 @@ def main(
     ),
     cache_size: int = typer.Option(1, "--cache-size"),
 ) -> None:
+    """Main.
+    
+    Args:
+        csv_path: Path to the input CSV file.
+        validation_config_path: Path to the validation YAML config, if provided.
+        transformation_config_path: Path to the transformation YAML config, if provided.
+        inspection_config_path: Path to the inspection YAML config, if provided.
+        baseline_file_path: Path to the baseline CSV used for reference-dataset inspection mode.
+        cache_size: Maximum number of cache snapshots to keep per source CSV.
+    
+    Returns:
+        None.
+    
+    Raises:
+        ValueError: If provided arguments are invalid.
+    """
     if (
         validation_config_path is None
         and transformation_config_path is None

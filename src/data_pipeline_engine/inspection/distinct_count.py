@@ -1,3 +1,15 @@
+"""Distinct count inspection module for column-level baseline comparisons.
+
+Provides pipeline functionality and includes: evaluate_distinct_count.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection.distinct_count import evaluate_distinct_count
+
+    evaluate_distinct_count(...)
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -17,6 +29,16 @@ def evaluate_distinct_count(
     config: InspectionColumnThresholdsConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
+    """Evaluate distinct count.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+        baseline_frames: Baseline data frames used for metric comparisons.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    """
     result: dict[str, dict[str, Any]] = {}
 
     for column, thresholds in config.columns.items():

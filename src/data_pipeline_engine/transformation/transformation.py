@@ -1,3 +1,15 @@
+"""Transformation orchestration module for applying configured dataframe operations.
+
+Provides pipeline functionality and includes: transformation.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.transformation.transformation import transformation
+
+    transformation(...)
+"""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -13,6 +25,15 @@ from data_pipeline_engine.transformation.rename import rename_columns
 
 
 def transformation(data: pd.DataFrame, config: TransformationRuleConfig | None) -> pd.DataFrame:
+    """Transformation.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+    
+    Returns:
+        Dataset after applying the configured transformation logic.
+    """
     if config is None:
         return data
 

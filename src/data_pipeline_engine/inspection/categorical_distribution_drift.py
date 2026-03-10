@@ -1,3 +1,15 @@
+"""Categorical drift module for inspection distribution comparisons.
+
+Provides pipeline functionality and includes: _distribution, _total_variation_distance, evaluate_categorical_distribution_drift.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection.categorical_distribution_drift import _distribution
+
+    _distribution(...)
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -9,6 +21,15 @@ from data_pipeline_engine.models.rules import InspectionCategoricalDistributionD
 
 
 def _distribution(data: pd.DataFrame, column: str) -> dict[str, float]:
+    """Distribution.
+    
+    Args:
+        data: Dataset to process.
+        column: Column name to evaluate or transform.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    """
     counts = data[column].dropna().astype("string").value_counts(normalize=True)
     return {str(key): float(value) for key, value in counts.items()}
 
@@ -16,6 +37,15 @@ def _distribution(data: pd.DataFrame, column: str) -> dict[str, float]:
 def _total_variation_distance(
     current_distribution: dict[str, float], baseline_distribution: dict[str, float]
 ) -> float:
+    """Total variation distance.
+    
+    Args:
+        current_distribution: Current categorical distribution.
+        baseline_distribution: Baseline categorical distribution.
+    
+    Returns:
+        Computed result of this operation.
+    """
     keys = set(current_distribution) | set(baseline_distribution)
     return 0.5 * sum(
         abs(current_distribution.get(key, 0.0) - baseline_distribution.get(key, 0.0))
@@ -28,6 +58,16 @@ def evaluate_categorical_distribution_drift(
     config: InspectionCategoricalDistributionDriftConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
 ) -> dict[str, dict[str, Any]]:
+    """Evaluate categorical distribution drift.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+        baseline_frames: Baseline data frames used for metric comparisons.
+    
+    Returns:
+        Dictionary containing computed results for this operation.
+    """
     result: dict[str, dict[str, Any]] = {}
 
     for column, thresholds in config.columns.items():

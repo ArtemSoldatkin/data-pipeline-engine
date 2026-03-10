@@ -1,3 +1,15 @@
+"""Inspection orchestration module for computing inspection metrics.
+
+Provides pipeline functionality and includes: _collect_statuses, _overall_status, inspection.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection.inspection import _collect_statuses
+
+    _collect_statuses(...)
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -19,6 +31,14 @@ from data_pipeline_engine.models.rules import InspectionRuleConfig
 
 
 def _collect_statuses(value: Any) -> list[str]:
+    """Collect statuses.
+    
+    Args:
+        value: Computed metric value to classify.
+    
+    Returns:
+        Flattened list of nested comparison statuses extracted from metric payloads.
+    """
     if isinstance(value, dict):
         statuses: list[str] = []
         if "comparison_status" in value and isinstance(value["comparison_status"], str):
@@ -35,6 +55,14 @@ def _collect_statuses(value: Any) -> list[str]:
 
 
 def _overall_status(metrics: dict[str, Any]) -> str:
+    """Overall status.
+    
+    Args:
+        metrics: Metrics value used by this operation.
+    
+    Returns:
+        Aggregate inspection status derived from nested metric statuses.
+    """
     statuses = _collect_statuses(metrics)
     if "fail" in statuses:
         return "fail"
@@ -54,7 +82,18 @@ def inspection(
     baseline_csv: str | Path | None = None,
     return_metrics: bool = False,
 ) -> pd.DataFrame | tuple[pd.DataFrame, dict[str, Any]]:
-    """Run inspection calculations and optionally return computed inspection metrics."""
+    """Inspection.
+    
+    Args:
+        data: Dataset to process.
+        config: Stage configuration object controlling the operation.
+        source_csv: Source CSV path used to resolve cache or baseline data.
+        baseline_csv: Path to baseline CSV data for inspection comparisons.
+        return_metrics: Return metrics value used by this operation.
+    
+    Returns:
+        Original dataset, optionally paired with inspection metrics when requested.
+    """
     if config is None:
         if return_metrics:
             return data, {"overall_status": "not_configured"}

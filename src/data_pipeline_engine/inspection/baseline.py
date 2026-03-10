@@ -1,3 +1,15 @@
+"""Inspection baseline module for loading and summarizing baseline frames.
+
+Provides pipeline functionality and includes: load_baseline_frames, evaluate_baseline.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.inspection.baseline import load_baseline_frames
+
+    load_baseline_frames(...)
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -13,6 +25,16 @@ def load_baseline_frames(
     source_csv: str | Path | None = None,
     baseline_csv: str | Path | None = None,
 ) -> list[pd.DataFrame]:
+    """Load baseline frames.
+    
+    Args:
+        config: Stage configuration object controlling the operation.
+        source_csv: Source CSV path used to resolve cache or baseline data.
+        baseline_csv: Path to baseline CSV data for inspection comparisons.
+    
+    Returns:
+        Processed dataset produced by this operation.
+    """
     if source_csv is None and config.source != "reference_dataset":
         return []
     return read_from_cache(
@@ -27,6 +49,16 @@ def evaluate_baseline(
     source_csv: str | Path | None = None,
     baseline_csv: str | Path | None = None,
 ) -> dict[str, object]:
+    """Evaluate baseline.
+    
+    Args:
+        config: Stage configuration object controlling the operation.
+        source_csv: Source CSV path used to resolve cache or baseline data.
+        baseline_csv: Path to baseline CSV data for inspection comparisons.
+    
+    Returns:
+        Baseline availability and row-count summary for inspection metrics.
+    """
     baseline_frames = load_baseline_frames(
         config=config, source_csv=source_csv, baseline_csv=baseline_csv
     )

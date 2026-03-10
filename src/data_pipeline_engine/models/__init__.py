@@ -1,4 +1,14 @@
-"""Pydantic models for pipeline rule configurations."""
+"""Models package module exposing pipeline configuration models.
+
+Provides pipeline functionality and includes: ColumnType, TableSchemaColumn, ValidationRowsConfig, ValidationColumnsConfig.
+
+Usage example:
+.. code-block:: python
+
+    from data_pipeline_engine.models import ColumnType
+
+    ColumnType(...)
+"""
 
 from data_pipeline_engine.models.rules import (
     ColumnType,
