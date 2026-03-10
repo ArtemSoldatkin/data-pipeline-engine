@@ -34,7 +34,7 @@ def test_cli_invokes_run_pipeline(tmp_path: Path) -> None:
         validation_config_path=None,
         transformation_config_path=None,
         inspection_config_path=inspection_path,
-        baseline_file_path=None,
+        reference_dataset_path=None,
         cache_size=2,
     )
     assert "'status': 'success'" in result.stdout

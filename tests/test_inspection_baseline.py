@@ -9,7 +9,7 @@ from data_pipeline_engine.inspection.baseline import evaluate_baseline, load_bas
 from data_pipeline_engine.models.rules import InspectionBaselineConfig
 
 
-def test_reference_dataset_requires_baseline_file_path() -> None:
+def test_reference_dataset_requires_reference_dataset_path() -> None:
     config = InspectionBaselineConfig(source="reference_dataset")
 
     with pytest.raises(

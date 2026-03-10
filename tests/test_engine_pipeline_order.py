@@ -113,5 +113,5 @@ def test_passes_baseline_file_to_inspection_for_reference_dataset(tmp_path: Path
         run_pipeline(
             csv_path=csv_path,
             inspection_config_path=inspection_path,
-            baseline_file_path=baseline_csv_path,
+            reference_dataset_path=baseline_csv_path,
         )

@@ -35,7 +35,7 @@ def run_pipeline(
     validation_config_path: str | Path | None = None,
     transformation_config_path: str | Path | None = None,
     inspection_config_path: str | Path | None = None,
-    baseline_file_path: str | Path | None = None,
+    reference_dataset_path: str | Path | None = None,
     cache_size: int = 1,
 ) -> dict[str, Any]:
     """Run pipeline.
@@ -45,7 +45,7 @@ def run_pipeline(
         validation_config_path: Path to the validation YAML config, if provided.
         transformation_config_path: Path to the transformation YAML config, if provided.
         inspection_config_path: Path to the inspection YAML config, if provided.
-        baseline_file_path: Path to the baseline CSV used for reference-dataset inspection mode.
+        reference_dataset_path: Path to the baseline CSV used for reference-dataset inspection mode.
         cache_size: Maximum number of cache snapshots to keep per source CSV.
     
     Returns:
@@ -83,7 +83,7 @@ def run_pipeline(
             data,
             configs.inspection,
             source_csv=csv_file,
-            baseline_csv=baseline_file_path,
+            baseline_csv=reference_dataset_path,
             return_metrics=True,
         )
         if isinstance(inspection_result, tuple):
