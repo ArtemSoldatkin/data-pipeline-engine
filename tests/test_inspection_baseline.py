@@ -14,7 +14,7 @@ def test_reference_dataset_requires_baseline_file_path() -> None:
 
     with pytest.raises(
         ValueError,
-        match="baseline_file_path must be provided when baseline source is reference_dataset",
+        match="reference_csv must be provided when strategy is reference_dataset",
     ):
         load_baseline_frames(config)
 

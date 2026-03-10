@@ -1,12 +1,11 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from pathlib import Path
-import re
 from typing import Literal
 
 import pandas as pd
-
 
 _CACHE_CSV_PATTERN = re.compile(r"^\d{8}T\d{9,}Z_.*\.csv$")
 
@@ -59,11 +58,11 @@ def read_from_cache(
     if strategy == "reference_dataset":
         if reference_csv is None:
             raise ValueError(
-                "baseline_file_path must be provided when baseline source is reference_dataset"
+                "reference_csv must be provided when strategy is reference_dataset"
             )
         reference_path = Path(reference_csv)
         if not reference_path.exists():
-            raise FileNotFoundError(f"Baseline CSV file does not exist: {reference_path}")
+            raise FileNotFoundError(f"Reference CSV file does not exist: {reference_path}")
         return [pd.read_csv(reference_path)]
 
     cached_files = _cache_files(source_path)
