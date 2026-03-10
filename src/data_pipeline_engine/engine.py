@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: run_pipeline, PipelineExecutionErr
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.engine import run_pipeline
+    from data_pipeline_engine.engine import PipelineExecutionError
 
-    run_pipeline(...)
-"""
+    PipelineExecutionError(...)"""
 
 from __future__ import annotations
 

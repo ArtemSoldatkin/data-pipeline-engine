@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.inspection.distinct_count import evaluate_distinct_count
 
-    evaluate_distinct_count(...)
-"""
+    evaluate_distinct_count(...)"""
 
 from __future__ import annotations
 

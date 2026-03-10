@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: _cache_dir_for_source, _cache_file
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.cache_manager.manager import _cache_dir_for_source
+    from data_pipeline_engine.cache_manager.manager import write_to_cache
 
-    _cache_dir_for_source(...)
-"""
+    write_to_cache(...)"""
 
 from __future__ import annotations
 

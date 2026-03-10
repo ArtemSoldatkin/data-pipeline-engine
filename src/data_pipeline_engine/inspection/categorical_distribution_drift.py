@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: _distribution, _total_variation_di
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.inspection.categorical_distribution_drift import _distribution
+    from data_pipeline_engine.inspection.categorical_distribution_drift import evaluate_categorical_distribution_drift
 
-    _distribution(...)
-"""
+    evaluate_categorical_distribution_drift(...)"""
 
 from __future__ import annotations
 

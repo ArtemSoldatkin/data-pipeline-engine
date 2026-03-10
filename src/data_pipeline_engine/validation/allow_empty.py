@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.validation.allow_empty import check_allow_empty
 
-    check_allow_empty(...)
-"""
+    check_allow_empty(...)"""
 
 from __future__ import annotations
 

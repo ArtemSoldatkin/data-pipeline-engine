@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.inspection.row_count import evaluate_row_count
 
-    evaluate_row_count(...)
-"""
+    evaluate_row_count(...)"""
 
 from __future__ import annotations
 

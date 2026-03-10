@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.normalize import normalize_columns
 
-    normalize_columns(...)
-"""
+    normalize_columns(...)"""
 
 from __future__ import annotations
 

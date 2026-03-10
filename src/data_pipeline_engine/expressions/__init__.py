@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.expressions import parse_literal
 
-    parse_literal(...)
-"""
+    parse_literal(...)"""
 
 from data_pipeline_engine.expressions.parser import (
     evaluate_derive,

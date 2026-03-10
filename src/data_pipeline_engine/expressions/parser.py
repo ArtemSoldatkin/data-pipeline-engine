@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.expressions.parser import parse_literal
 
-    parse_literal(...)
-"""
+    parse_literal(...)"""
 
 from __future__ import annotations
 

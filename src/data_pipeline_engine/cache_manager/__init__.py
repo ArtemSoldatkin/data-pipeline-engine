@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.cache_manager import write_to_cache
 
-    write_to_cache(...)
-"""
+    write_to_cache(...)"""
 
 from data_pipeline_engine.cache_manager.manager import read_from_cache, write_to_cache
 

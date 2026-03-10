@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: _check_unique, _check_pattern, _ch
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.validation.constraints import _check_unique
+    from data_pipeline_engine.validation.constraints import run_constraints
 
-    _check_unique(...)
-"""
+    run_constraints(...)"""
 
 from __future__ import annotations
 

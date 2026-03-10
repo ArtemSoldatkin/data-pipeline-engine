@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.derive import derive_columns
 
-    derive_columns(...)
-"""
+    derive_columns(...)"""
 
 from __future__ import annotations
 

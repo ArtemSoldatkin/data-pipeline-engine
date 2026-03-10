@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.models import ColumnType
 
-    ColumnType(...)
-"""
+    ColumnType(...)"""
 
 from data_pipeline_engine.models.rules import (
     ColumnType,

@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.transformation import transformation
 
-    transformation(...)
-"""
+    transformation(...)"""
 
 from __future__ import annotations
 

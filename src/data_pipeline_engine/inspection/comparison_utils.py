@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.inspection.comparison_utils import mean_or_none
 
-    mean_or_none(...)
-"""
+    mean_or_none(...)"""
 
 from __future__ import annotations
 

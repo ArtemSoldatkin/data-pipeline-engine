@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.validation.validation import validation
 
-    validation(...)
-"""
+    validation(...)"""
 
 from __future__ import annotations
 

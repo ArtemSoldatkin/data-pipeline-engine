@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.cast import cast_columns
 
-    cast_columns(...)
-"""
+    cast_columns(...)"""
 
 from __future__ import annotations
 

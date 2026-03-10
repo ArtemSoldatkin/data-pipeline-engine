@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.inspection.null_fraction import evaluate_null_fraction
 
-    evaluate_null_fraction(...)
-"""
+    evaluate_null_fraction(...)"""
 
 from __future__ import annotations
 

@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.filter import filter_rows
 
-    filter_rows(...)
-"""
+    filter_rows(...)"""
 
 from __future__ import annotations
 

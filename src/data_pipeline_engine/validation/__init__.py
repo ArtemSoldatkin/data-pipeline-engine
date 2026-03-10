@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: run_validation, ValidationExecutio
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.validation import run_validation
+    from data_pipeline_engine.validation import ValidationExecutionError
 
-    run_validation(...)
-"""
+    ValidationExecutionError(...)"""
 
 from data_pipeline_engine.validation.errors import ValidationExecutionError
 from data_pipeline_engine.validation.validation import validation

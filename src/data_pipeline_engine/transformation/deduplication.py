@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.deduplication import deduplicate_rows
 
-    deduplicate_rows(...)
-"""
+    deduplicate_rows(...)"""
 
 from __future__ import annotations
 

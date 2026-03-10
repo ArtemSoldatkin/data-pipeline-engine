@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.validation.primary_keys import check_primary_keys
 
-    check_primary_keys(...)
-"""
+    check_primary_keys(...)"""
 
 from __future__ import annotations
 

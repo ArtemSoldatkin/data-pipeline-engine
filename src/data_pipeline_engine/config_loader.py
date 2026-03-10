@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: _load_yaml_file, load_pipeline_con
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.config_loader import _load_yaml_file
+    from data_pipeline_engine.config_loader import load_pipeline_configs
 
-    _load_yaml_file(...)
-"""
+    load_pipeline_configs(...)"""
 
 from __future__ import annotations
 

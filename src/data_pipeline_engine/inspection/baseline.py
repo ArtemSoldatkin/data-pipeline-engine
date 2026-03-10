@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.inspection.baseline import load_baseline_frames
 
-    load_baseline_frames(...)
-"""
+    load_baseline_frames(...)"""
 
 from __future__ import annotations
 

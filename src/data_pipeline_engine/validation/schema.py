@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: _map_pandas_type, verify_schema.
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.validation.schema import _map_pandas_type
+    from data_pipeline_engine.validation.schema import verify_schema
 
-    _map_pandas_type(...)
-"""
+    verify_schema(...)"""
 
 from __future__ import annotations
 

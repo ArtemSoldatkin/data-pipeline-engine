@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine import run_pipeline
 
-    run_pipeline(...)
-"""
+    run_pipeline(...)"""
 
 from __future__ import annotations
 

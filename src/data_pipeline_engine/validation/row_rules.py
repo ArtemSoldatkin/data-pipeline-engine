@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.validation.row_rules import run_row_rules
 
-    run_row_rules(...)
-"""
+    run_row_rules(...)"""
 
 from __future__ import annotations
 

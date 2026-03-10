@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: _to_numeric_values, _uniform_edges
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.inspection.numeric_distribution_drift import _to_numeric_values
+    from data_pipeline_engine.inspection.numeric_distribution_drift import evaluate_numeric_distribution_drift
 
-    _to_numeric_values(...)
-"""
+    evaluate_numeric_distribution_drift(...)"""
 
 from __future__ import annotations
 

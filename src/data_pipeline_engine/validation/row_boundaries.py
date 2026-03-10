@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.validation.row_boundaries import check_row_boundaries
 
-    check_row_boundaries(...)
-"""
+    check_row_boundaries(...)"""
 
 from __future__ import annotations
 

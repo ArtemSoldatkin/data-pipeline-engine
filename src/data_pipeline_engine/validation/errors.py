@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.validation.errors import ValidationExecutionError
 
-    ValidationExecutionError(...)
-"""
+    ValidationExecutionError(...)"""
 
 class ValidationExecutionError(Exception):
     """Raised when validation stage fails."""

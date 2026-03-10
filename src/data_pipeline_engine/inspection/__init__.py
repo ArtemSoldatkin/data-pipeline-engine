@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: run_inspection, inspection, evalua
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.inspection import run_inspection
+    from data_pipeline_engine.inspection import inspection
 
-    run_inspection(...)
-"""
+    inspection(...)"""
 
 from data_pipeline_engine.inspection.baseline import (
     evaluate_baseline,

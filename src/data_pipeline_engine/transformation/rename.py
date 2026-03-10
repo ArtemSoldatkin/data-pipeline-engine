@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.rename import rename_columns
 
-    rename_columns(...)
-"""
+    rename_columns(...)"""
 
 from __future__ import annotations
 

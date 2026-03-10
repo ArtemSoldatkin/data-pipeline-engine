@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: _collect_statuses, _overall_status
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.inspection.inspection import _collect_statuses
+    from data_pipeline_engine.inspection.inspection import inspection
 
-    _collect_statuses(...)
-"""
+    inspection(...)"""
 
 from __future__ import annotations
 

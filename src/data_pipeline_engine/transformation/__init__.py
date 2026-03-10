@@ -5,10 +5,9 @@ Provides pipeline functionality and includes: run_transformation, StageExecution
 Usage example:
 .. code-block:: python
 
-    from data_pipeline_engine.transformation import run_transformation
+    from data_pipeline_engine.transformation import StageExecutionError
 
-    run_transformation(...)
-"""
+    StageExecutionError(...)"""
 
 from data_pipeline_engine.transformation.errors import StageExecutionError
 from data_pipeline_engine.transformation.transformation import transformation

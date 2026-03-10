@@ -7,8 +7,7 @@ Usage example:
 
     from data_pipeline_engine.transformation.errors import StageExecutionError
 
-    StageExecutionError(...)
-"""
+    StageExecutionError(...)"""
 
 class StageExecutionError(Exception):
     """Raised when any pipeline stage fails."""
