@@ -25,6 +25,7 @@ _DTYPE_MAP: dict[TransformationCastType, str] = {
     TransformationCastType.DATETIME: "datetime64[ns]",
     TransformationCastType.TIMESTAMP: "datetime64[ns]",
 }
+"""Maps transformation cast enum values to pandas target dtypes."""
 
 
 def cast_columns(data: pd.DataFrame, casts: dict[str, TransformationCastType]) -> pd.DataFrame:

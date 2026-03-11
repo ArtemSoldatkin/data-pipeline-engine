@@ -221,6 +221,7 @@ _CONSTRAINT_CHECKERS: dict[str, ConstraintChecker] = {
     "allow_inf": _check_allow_inf,
     "max_null_fraction": _check_max_null_fraction,
 }
+"""Dispatch table from constraint names to their validation checker functions."""
 
 
 def run_constraints(data: pd.DataFrame, constraints: dict[str, dict[str, Any]]) -> list[str]:
