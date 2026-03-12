@@ -11,12 +11,15 @@ Usage example:
 
 from __future__ import annotations
 
-from typing import Any
-
 import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import status_from_thresholds
 from data_pipeline_engine.models.rules import InspectionCategoricalDistributionDriftConfig
+from data_pipeline_engine.inspection.types import (
+    CategoricalDistributionDriftColumnMetric,
+    CategoricalDistributionDriftMetric,
+    MissingColumnCategoricalDistributionDriftMetric,
+)
 
 
 def _distribution(data: pd.DataFrame, column: str) -> dict[str, float]:
@@ -56,7 +59,7 @@ def evaluate_categorical_distribution_drift(
     data: pd.DataFrame,
     config: InspectionCategoricalDistributionDriftConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
-) -> dict[str, dict[str, Any]]:
+) -> dict[str, CategoricalDistributionDriftColumnMetric]:
     """Evaluate categorical distribution drift.
     
     Args:
@@ -67,16 +70,20 @@ def evaluate_categorical_distribution_drift(
     Returns:
         Dictionary containing computed results for this operation.
     """
-    result: dict[str, dict[str, Any]] = {}
+    result: dict[str, CategoricalDistributionDriftColumnMetric] = {}
 
     for column, thresholds in config.columns.items():
+        warn_above = float(thresholds.warn_above) if thresholds.warn_above is not None else None
+        fail_above = float(thresholds.fail_above) if thresholds.fail_above is not None else None
+
         if column not in data.columns:
-            result[column] = {
+            missing_metric: MissingColumnCategoricalDistributionDriftMetric = {
                 "present": False,
-                "warn_above": thresholds.warn_above,
-                "fail_above": thresholds.fail_above,
+                "warn_above": warn_above,
+                "fail_above": fail_above,
                 "comparison_status": "missing_column",
             }
+            result[column] = missing_metric
             continue
 
         current_distribution = _distribution(data, column)
@@ -100,16 +107,17 @@ def evaluate_categorical_distribution_drift(
         if current_distribution and baseline_distribution:
             distance = _total_variation_distance(current_distribution, baseline_distribution)
 
-        result[column] = {
+        metric: CategoricalDistributionDriftMetric = {
             "present": True,
-            "warn_above": thresholds.warn_above,
-            "fail_above": thresholds.fail_above,
+            "warn_above": warn_above,
+            "fail_above": fail_above,
             "current_distribution": current_distribution,
             "baseline_distribution": baseline_distribution,
             "distance": distance,
             "comparison_status": status_from_thresholds(
-                distance, thresholds.warn_above, thresholds.fail_above
+                distance, warn_above, fail_above
             ),
         }
+        result[column] = metric
 
     return result

@@ -12,14 +12,15 @@ Usage example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 
 from data_pipeline_engine.cache_manager import write_to_cache
 from data_pipeline_engine.config_loader import load_pipeline_configs
 from data_pipeline_engine.inspection import inspection
+from data_pipeline_engine.inspection.types import InspectionMetrics, InspectionStatusOnlyMetrics
 from data_pipeline_engine.transformation import StageExecutionError, transformation
+from data_pipeline_engine.types import PipelineRunResult
 from data_pipeline_engine.validation import ValidationExecutionError, validation
 
 
@@ -37,7 +38,7 @@ def run_pipeline(
     inspection_config_path: str | Path | None = None,
     reference_dataset_path: str | Path | None = None,
     cache_size: int = 1,
-) -> dict[str, Any]:
+) -> PipelineRunResult:
     """Run pipeline.
     
     Args:
@@ -75,7 +76,9 @@ def run_pipeline(
         raise FileNotFoundError(f"CSV file does not exist: {csv_file}")
 
     data = pd.read_csv(csv_file)
-    inspection_metrics: dict[str, Any] = {}
+    inspection_metrics: InspectionMetrics | InspectionStatusOnlyMetrics = {
+        "overall_status": "not_configured"
+    }
     try:
         data = transformation(data, configs.transformation)
         data = validation(data, configs.validation)

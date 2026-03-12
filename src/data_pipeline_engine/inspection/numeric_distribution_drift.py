@@ -12,12 +12,17 @@ Usage example:
 from __future__ import annotations
 
 import math
-from typing import Any
 
 import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import status_from_thresholds
 from data_pipeline_engine.models.rules import InspectionNumericDistributionDriftConfig
+from data_pipeline_engine.inspection.types import (
+    MissingColumnNumericDistributionDriftMetric,
+    NumericCurrentStats,
+    NumericDistributionDriftMetric,
+    NumericDistributionDriftColumnMetric,
+)
 
 
 def _to_numeric_values(data: pd.DataFrame, column: str) -> list[float]:
@@ -32,7 +37,10 @@ def _to_numeric_values(data: pd.DataFrame, column: str) -> list[float]:
     """
     if column not in data.columns:
         return []
-    series = pd.to_numeric(data[column], errors="coerce").dropna()
+    numeric_values = pd.to_numeric(data[column], errors="coerce")
+    if not isinstance(numeric_values, pd.Series):
+        return []
+    series = numeric_values.dropna()
     return [float(value) for value in series.tolist()]
 
 
@@ -185,7 +193,7 @@ def evaluate_numeric_distribution_drift(
     data: pd.DataFrame,
     config: InspectionNumericDistributionDriftConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
-) -> dict[str, dict[str, Any]]:
+) -> dict[str, NumericDistributionDriftColumnMetric]:
     """Evaluate numeric distribution drift.
     
     Args:
@@ -196,22 +204,26 @@ def evaluate_numeric_distribution_drift(
     Returns:
         Dictionary containing computed results for this operation.
     """
-    result: dict[str, dict[str, Any]] = {}
+    result: dict[str, NumericDistributionDriftColumnMetric] = {}
 
     for column, thresholds in config.columns.items():
+        warn_above = float(thresholds.warn_above) if thresholds.warn_above is not None else None
+        fail_above = float(thresholds.fail_above) if thresholds.fail_above is not None else None
+
         if column not in data.columns:
-            result[column] = {
+            missing_metric: MissingColumnNumericDistributionDriftMetric = {
                 "present": False,
                 "method": thresholds.method,
-                "warn_above": thresholds.warn_above,
-                "fail_above": thresholds.fail_above,
+                "warn_above": warn_above,
+                "fail_above": fail_above,
                 "comparison_status": "missing_column",
             }
+            result[column] = missing_metric
             continue
 
         current_values = _to_numeric_values(data, column)
         current_series = pd.Series(current_values, dtype="float64")
-        current_stats = {
+        current_stats: NumericCurrentStats = {
             "count": len(current_values),
             "mean": float(current_series.mean()) if not current_series.empty else None,
             "std": float(current_series.std()) if len(current_values) > 1 else None,
@@ -226,17 +238,18 @@ def evaluate_numeric_distribution_drift(
         if current_values and baseline_values:
             distance = _distribution_distance(thresholds.method, current_values, baseline_values)
 
-        result[column] = {
+        metric: NumericDistributionDriftMetric = {
             "present": True,
             "method": thresholds.method,
-            "warn_above": thresholds.warn_above,
-            "fail_above": thresholds.fail_above,
+            "warn_above": warn_above,
+            "fail_above": fail_above,
             "current_stats": current_stats,
             "baseline_count": len(baseline_values),
             "distance": distance,
             "comparison_status": status_from_thresholds(
-                distance, thresholds.warn_above, thresholds.fail_above
+                distance, warn_above, fail_above
             ),
         }
+        result[column] = metric
 
     return result

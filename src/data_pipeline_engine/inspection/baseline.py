@@ -17,6 +17,7 @@ import pandas as pd
 
 from data_pipeline_engine.cache_manager import read_from_cache
 from data_pipeline_engine.models.rules import InspectionBaselineConfig
+from data_pipeline_engine.inspection.types import BaselineEvaluation
 
 
 def load_baseline_frames(
@@ -47,7 +48,7 @@ def evaluate_baseline(
     config: InspectionBaselineConfig,
     source_csv: str | Path | None = None,
     baseline_csv: str | Path | None = None,
-) -> dict[str, object]:
+) -> BaselineEvaluation:
     """Evaluate baseline.
     
     Args:
