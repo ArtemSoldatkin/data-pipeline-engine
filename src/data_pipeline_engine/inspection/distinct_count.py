@@ -11,8 +11,6 @@ Usage example:
 
 from __future__ import annotations
 
-from typing import Any
-
 import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import (
@@ -21,13 +19,18 @@ from data_pipeline_engine.inspection.comparison_utils import (
     status_from_thresholds,
 )
 from data_pipeline_engine.models.rules import InspectionColumnThresholdsConfig
+from data_pipeline_engine.inspection.types import (
+    DistinctCountColumnMetric,
+    DistinctCountMetric,
+    MissingColumnChangeMetric,
+)
 
 
 def evaluate_distinct_count(
     data: pd.DataFrame,
     config: InspectionColumnThresholdsConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
-) -> dict[str, dict[str, Any]]:
+) -> dict[str, DistinctCountColumnMetric]:
     """Evaluate distinct count.
     
     Args:
@@ -38,16 +41,24 @@ def evaluate_distinct_count(
     Returns:
         Dictionary containing computed results for this operation.
     """
-    result: dict[str, dict[str, Any]] = {}
+    result: dict[str, DistinctCountColumnMetric] = {}
 
     for column, thresholds in config.columns.items():
+        warn_change_pct = (
+            float(thresholds.warn_change_pct) if thresholds.warn_change_pct is not None else None
+        )
+        fail_change_pct = (
+            float(thresholds.fail_change_pct) if thresholds.fail_change_pct is not None else None
+        )
+
         if column not in data.columns:
-            result[column] = {
+            missing_metric: MissingColumnChangeMetric = {
                 "present": False,
-                "warn_change_pct": thresholds.warn_change_pct,
-                "fail_change_pct": thresholds.fail_change_pct,
+                "warn_change_pct": warn_change_pct,
+                "fail_change_pct": fail_change_pct,
                 "comparison_status": "missing_column",
             }
+            result[column] = missing_metric
             continue
 
         current_distinct = int(data[column].nunique(dropna=False))
@@ -58,16 +69,17 @@ def evaluate_distinct_count(
         baseline_distinct = mean_or_none(baseline_values)
         change_pct = relative_change_pct(float(current_distinct), baseline_distinct)
 
-        result[column] = {
+        metric: DistinctCountMetric = {
             "present": True,
             "current_distinct_count": current_distinct,
             "baseline_distinct_count": baseline_distinct,
-            "warn_change_pct": thresholds.warn_change_pct,
-            "fail_change_pct": thresholds.fail_change_pct,
+            "warn_change_pct": warn_change_pct,
+            "fail_change_pct": fail_change_pct,
             "change_pct": change_pct,
             "comparison_status": status_from_thresholds(
-                change_pct, thresholds.warn_change_pct, thresholds.fail_change_pct
+                change_pct, warn_change_pct, fail_change_pct
             ),
         }
+        result[column] = metric
 
     return result

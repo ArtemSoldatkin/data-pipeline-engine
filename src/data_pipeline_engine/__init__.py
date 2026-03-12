@@ -12,7 +12,8 @@ Usage example:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+
+from data_pipeline_engine.types import PipelineRunResult
 
 __all__ = ["run_pipeline"]
 
@@ -23,7 +24,7 @@ def run_pipeline(
     transformation_config_path: str | Path | None = None,
     inspection_config_path: str | Path | None = None,
     cache_size: int = 1,
-) -> dict[str, Any]:
+) -> PipelineRunResult:
     """Run pipeline.
     
     Args:

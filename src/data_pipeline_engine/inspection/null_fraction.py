@@ -11,8 +11,6 @@ Usage example:
 
 from __future__ import annotations
 
-from typing import Any
-
 import pandas as pd
 
 from data_pipeline_engine.inspection.comparison_utils import (
@@ -21,13 +19,18 @@ from data_pipeline_engine.inspection.comparison_utils import (
     status_from_thresholds,
 )
 from data_pipeline_engine.models.rules import InspectionColumnThresholdsConfig
+from data_pipeline_engine.inspection.types import (
+    MissingColumnNullFractionMetric,
+    NullFractionColumnMetric,
+    NullFractionMetric,
+)
 
 
 def evaluate_null_fraction(
     data: pd.DataFrame,
     config: InspectionColumnThresholdsConfig,
     baseline_frames: list[pd.DataFrame] | None = None,
-) -> dict[str, dict[str, Any]]:
+) -> dict[str, NullFractionColumnMetric]:
     """Evaluate null fraction.
     
     Args:
@@ -38,17 +41,25 @@ def evaluate_null_fraction(
     Returns:
         Dictionary containing computed results for this operation.
     """
-    result: dict[str, dict[str, Any]] = {}
+    result: dict[str, NullFractionColumnMetric] = {}
     denominator = max(len(data), 1)
 
     for column, thresholds in config.columns.items():
+        warn_change_pct = (
+            float(thresholds.warn_change_pct) if thresholds.warn_change_pct is not None else None
+        )
+        fail_change_pct = (
+            float(thresholds.fail_change_pct) if thresholds.fail_change_pct is not None else None
+        )
+
         if column not in data.columns:
-            result[column] = {
+            missing_metric: MissingColumnNullFractionMetric = {
                 "present": False,
-                "warn_change_pct": thresholds.warn_change_pct,
-                "fail_change_pct": thresholds.fail_change_pct,
+                "warn_change_pct": warn_change_pct,
+                "fail_change_pct": fail_change_pct,
                 "comparison_status": "missing_column",
             }
+            result[column] = missing_metric
             continue
 
         current_fraction = float(data[column].isna().sum()) / denominator
@@ -61,16 +72,17 @@ def evaluate_null_fraction(
 
         baseline_fraction = mean_or_none(baseline_fractions)
         change_pct = absolute_delta_pct(current_fraction, baseline_fraction)
-        result[column] = {
+        metric: NullFractionMetric = {
             "present": True,
             "current_null_fraction": current_fraction,
             "baseline_null_fraction": baseline_fraction,
-            "warn_change_pct": thresholds.warn_change_pct,
-            "fail_change_pct": thresholds.fail_change_pct,
+            "warn_change_pct": warn_change_pct,
+            "fail_change_pct": fail_change_pct,
             "change_pct": change_pct,
             "comparison_status": status_from_thresholds(
-                change_pct, thresholds.warn_change_pct, thresholds.fail_change_pct
+                change_pct, warn_change_pct, fail_change_pct
             ),
         }
+        result[column] = metric
 
     return result

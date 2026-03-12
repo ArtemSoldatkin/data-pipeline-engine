@@ -26,6 +26,10 @@ from data_pipeline_engine.inspection.numeric_distribution_drift import (
     evaluate_numeric_distribution_drift,
 )
 from data_pipeline_engine.inspection.row_count import evaluate_row_count
+from data_pipeline_engine.inspection.types import (
+    InspectionMetrics,
+    InspectionStatusOnlyMetrics,
+)
 from data_pipeline_engine.models.rules import InspectionRuleConfig
 
 
@@ -80,7 +84,7 @@ def inspection(
     source_csv: str | Path | None = None,
     baseline_csv: str | Path | None = None,
     return_metrics: bool = False,
-) -> pd.DataFrame | tuple[pd.DataFrame, dict[str, Any]]:
+) -> pd.DataFrame | tuple[pd.DataFrame, InspectionMetrics | InspectionStatusOnlyMetrics]:
     """Inspection.
     
     Args:
@@ -101,27 +105,43 @@ def inspection(
     baseline_frames = load_baseline_frames(
         config.baseline, source_csv=source_csv, baseline_csv=baseline_csv
     )
-    metrics: dict[str, object] = {
-        "baseline": evaluate_baseline(
-            config.baseline,
-            source_csv=source_csv,
-            baseline_csv=baseline_csv,
-        ),
-        "row_count": evaluate_row_count(data, config.row_count, baseline_frames=baseline_frames),
-        "null_fraction": evaluate_null_fraction(
-            data, config.null_fraction, baseline_frames=baseline_frames
-        ),
-        "distinct_count": evaluate_distinct_count(
-            data, config.distinct_count, baseline_frames=baseline_frames
-        ),
-        "numeric_distribution_drift": evaluate_numeric_distribution_drift(
-            data, config.numeric_distribution_drift, baseline_frames=baseline_frames
-        ),
-        "categorical_distribution_drift": evaluate_categorical_distribution_drift(
-            data, config.categorical_distribution_drift, baseline_frames=baseline_frames
-        ),
+    baseline_metrics = evaluate_baseline(
+        config.baseline,
+        source_csv=source_csv,
+        baseline_csv=baseline_csv,
+    )
+    row_count_metrics = evaluate_row_count(data, config.row_count, baseline_frames=baseline_frames)
+    null_fraction_metrics = evaluate_null_fraction(
+        data, config.null_fraction, baseline_frames=baseline_frames
+    )
+    distinct_count_metrics = evaluate_distinct_count(
+        data, config.distinct_count, baseline_frames=baseline_frames
+    )
+    numeric_distribution_metrics = evaluate_numeric_distribution_drift(
+        data, config.numeric_distribution_drift, baseline_frames=baseline_frames
+    )
+    categorical_distribution_metrics = evaluate_categorical_distribution_drift(
+        data, config.categorical_distribution_drift, baseline_frames=baseline_frames
+    )
+    overall_status = _overall_status(
+        {
+            "baseline": baseline_metrics,
+            "row_count": row_count_metrics,
+            "null_fraction": null_fraction_metrics,
+            "distinct_count": distinct_count_metrics,
+            "numeric_distribution_drift": numeric_distribution_metrics,
+            "categorical_distribution_drift": categorical_distribution_metrics,
+        }
+    )
+    metrics: InspectionMetrics = {
+        "baseline": baseline_metrics,
+        "row_count": row_count_metrics,
+        "null_fraction": null_fraction_metrics,
+        "distinct_count": distinct_count_metrics,
+        "numeric_distribution_drift": numeric_distribution_metrics,
+        "categorical_distribution_drift": categorical_distribution_metrics,
+        "overall_status": overall_status,
     }
-    metrics["overall_status"] = _overall_status(metrics)
     if return_metrics:
         return data, metrics
     return data
